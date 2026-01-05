@@ -32,7 +32,7 @@
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
                             <i class="fas fa-graduation-cap fa-3x text-primary"></i>
-                            <h3 class="mt-3">Welcome Back</h3>
+                            <h3 class="mt-3">Welcome</h3>
                             <p class="text-muted">Login to your account</p>
                         </div>
 

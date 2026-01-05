@@ -44,6 +44,8 @@ Route::middleware(['auth', 'teacher'])->prefix('teacher')->name('teacher.')->gro
     Route::post('/topics', [TopicController::class, 'store'])->name('topics.store');
     Route::delete('/topics/{topic}', [TopicController::class, 'destroy'])->name('topics.destroy');
     
+    Route::get('/geogebra', [GeoGebraController::class, 'teacher'])->name('geogebra');
+
     Route::get('/videos', [VideoController::class, 'index'])->name('videos.index');
     Route::get('/videos/create', [VideoController::class, 'create'])->name('videos.create');
     Route::post('/videos', [VideoController::class, 'store'])->name('videos.store');
@@ -69,7 +71,7 @@ Route::middleware(['auth', 'student'])->prefix('student')->name('student.')->gro
     Route::get('/videos', [StudentController::class, 'videos'])->name('videos');
     Route::get('/videos/{video}', [StudentController::class, 'watchVideo'])->name('videos.watch');
     
-    Route::get('/geogebra', [GeoGebraController::class, 'index'])->name('geogebra');
+    Route::get('/geogebra', [GeoGebraController::class, 'student'])->name('geogebra');
     
     Route::get('/quizzes', [StudentController::class, 'quizzes'])->name('quizzes');
     Route::get('/quizzes/{quiz}/take', [QuizController::class, 'take'])->name('quizzes.take');

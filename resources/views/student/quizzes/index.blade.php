@@ -3,26 +3,7 @@
 @section('title', 'Available Quizzes')
 
 @section('sidebar')
-<nav class="nav flex-column">
-    <a href="{{ route('student.dashboard') }}" class="nav-link">
-        <i class="fas fa-dashboard"></i> Dashboard
-    </a>
-    <a href="{{ route('student.topics') }}" class="nav-link">
-        <i class="fas fa-book"></i> Topics
-    </a>
-    <a href="{{ route('student.videos') }}" class="nav-link">
-        <i class="fas fa-video"></i> Videos
-    </a>
-    <a href="{{ route('student.geogebra') }}" class="nav-link">
-        <i class="fas fa-chart-line"></i> GeoGebra
-    </a>
-    <a href="{{ route('student.quizzes') }}" class="nav-link active">
-        <i class="fas fa-question-circle"></i> Quizzes
-    </a>
-    <a href="{{ route('student.quizzes.results') }}" class="nav-link">
-        <i class="fas fa-chart-bar"></i> My Results
-    </a>
-</nav>
+@include ('student.sidebar')
 @endsection
 
 @section('content')
@@ -76,7 +57,9 @@
     @endforelse
 </div>
 
-<div class="mt-4">
-    {{ $quizzes->links() }}
+@if($quizzes->hasPages())
+<div class="mt-4 d-flex justify-content-center">
+    {{ $quizzes->links('pagination::bootstrap-5') }}
 </div>
+@endif  
 @endsection

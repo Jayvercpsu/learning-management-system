@@ -3,26 +3,7 @@
 @section('title', 'Take Quiz')
 
 @section('sidebar')
-<nav class="nav flex-column">
-    <a href="{{ route('student.dashboard') }}" class="nav-link">
-        <i class="fas fa-dashboard"></i> Dashboard
-    </a>
-    <a href="{{ route('student.topics') }}" class="nav-link">
-        <i class="fas fa-book"></i> Topics
-    </a>
-    <a href="{{ route('student.videos') }}" class="nav-link">
-        <i class="fas fa-video"></i> Videos
-    </a>
-    <a href="{{ route('student.geogebra') }}" class="nav-link">
-        <i class="fas fa-chart-line"></i> GeoGebra
-    </a>
-    <a href="{{ route('student.quizzes') }}" class="nav-link active">
-        <i class="fas fa-question-circle"></i> Quizzes
-    </a>
-    <a href="{{ route('student.quizzes.results') }}" class="nav-link">
-        <i class="fas fa-chart-bar"></i> My Results
-    </a>
-</nav>
+@include ('student.sidebar')
 @endsection
 
 @section('content')
@@ -90,17 +71,21 @@
                 </div>
             @endforeach
 
-            <div class="d-flex justify-content-between">
-                <a href="{{ route('student.quizzes') }}" class="btn btn-secondary" onclick="return confirm('Are you sure you want to leave? Your progress will be lost.')">
+<div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#cancelModal">
                     <i class="fas fa-arrow-left"></i> Cancel
-                </a>
-                <button type="submit" class="btn btn-primary" onclick="return confirm('Are you sure you want to submit? You cannot change your answers after submission.')">
+                </button>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal">
                     <i class="fas fa-check"></i> Submit Quiz
                 </button>
             </div>
         </form>
     </div>
 </div>
+
+
+@include('modals.quiz-actions')
+
 @endsection
 
 @push('scripts')

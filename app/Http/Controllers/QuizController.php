@@ -128,6 +128,7 @@ class QuizController extends Controller
 
         $attempts = $quiz->attempts()
             ->with('user')
+            ->whereNotNull('submitted_at')
             ->latest()
             ->paginate(20);
 

@@ -13,9 +13,15 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         .sidebar {
-            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100vh;
             background: #2c3e50;
             color: white;
+            overflow-y: auto;
+            z-index: 1000;
         }
         .sidebar a {
             color: #ecf0f1;
@@ -29,6 +35,7 @@
             border-left: 4px solid #3498db;
         }
         .main-content {
+            margin-left: 250px;
             background: white;
             min-height: 100vh;
         }
@@ -52,19 +59,46 @@
             font-weight: bold;
             font-size: 1.5rem;
         }
+
+        /* Mobile responsive */
+        @media (max-width: 767px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* Scrollbar styling for sidebar */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: #2c3e50;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #34495e;
+            border-radius: 3px;
+        }
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #3498db;
+        }
     </style>
     @stack('styles')
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
+    <div class="container-fluid p-0">
+        <div class="row g-0">
             <div class="col-md-2 p-0 sidebar d-none d-md-block">
                 <div class="p-4">
                     <h4 class="text-center mb-4">
                         <i class="fas fa-graduation-cap"></i> LMS
                     </h4>
                     <div class="mb-4">
-                        <small class="text-muted">{{ strtoupper(auth()->user()->role) }}</small>
+                        <small style="color: gray">{{ strtoupper(auth()->user()->role) }}</small>
                         <p class="mb-0">{{ auth()->user()->name }}</p>
                     </div>
                 </div>

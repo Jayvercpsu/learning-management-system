@@ -3,23 +3,7 @@
 @section('title', 'Quiz Results')
 
 @section('sidebar')
-<nav class="nav flex-column">
-    <a href="{{ route('teacher.dashboard') }}" class="nav-link">
-        <i class="fas fa-dashboard"></i> Dashboard
-    </a>
-    <a href="{{ route('teacher.topics.index') }}" class="nav-link">
-        <i class="fas fa-book"></i> Topics
-    </a>
-    <a href="{{ route('teacher.videos.index') }}" class="nav-link">
-        <i class="fas fa-video"></i> Videos
-    </a>
-    <a href="{{ route('teacher.quizzes.index') }}" class="nav-link active">
-        <i class="fas fa-question-circle"></i> Quizzes
-    </a>
-    <a href="{{ route('teacher.students') }}" class="nav-link">
-        <i class="fas fa-user-graduate"></i> Students
-    </a>
-</nav>
+@include ('teacher.sidebar')
 @endsection
 
 @section('content')
@@ -66,16 +50,26 @@
                                     <span class="badge bg-warning">Pending</span>
                                 @endif
                             </td>
-                            <td>{{ $attempt->submitted_at->format('M d, Y H:i') }}</td>
                             <td>
-                                <a href="{{ route('teacher.quizzes.attempts.view', [$quiz, $attempt]) }}" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-eye"></i> View
-                                </a>
+                                @if($attempt->submitted_at)
+                                    {{ $attempt->submitted_at->format('M d, Y H:i') }}
+                                @else
+                                    <span class="text-muted">Not submitted</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($attempt->submitted_at)
+                                    <a href="{{ route('teacher.quizzes.attempts.view', [$quiz, $attempt]) }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                @else
+                                    <span class="text-muted">In Progress</span>
+                                @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center">No attempts yet.</td>
+                            <td colspan="5" class="text-center">No submitted attempts yet.</td>
                         </tr>
                     @endforelse
                 </tbody>

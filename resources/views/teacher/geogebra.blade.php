@@ -3,7 +3,7 @@
 @section('title', 'GeoGebra Interactive Graphing')
 
 @section('sidebar')
-@include ('student.sidebar')
+@include ('teacher.sidebar')
 @endsection
 
 @section('content')

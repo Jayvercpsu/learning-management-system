@@ -3,23 +3,7 @@
 @section('title', 'My Quizzes')
 
 @section('sidebar')
-<nav class="nav flex-column">
-    <a href="{{ route('teacher.dashboard') }}" class="nav-link">
-        <i class="fas fa-dashboard"></i> Dashboard
-    </a>
-    <a href="{{ route('teacher.topics.index') }}" class="nav-link">
-        <i class="fas fa-book"></i> Topics
-    </a>
-    <a href="{{ route('teacher.videos.index') }}" class="nav-link">
-        <i class="fas fa-video"></i> Videos
-    </a>
-    <a href="{{ route('teacher.quizzes.index') }}" class="nav-link active">
-        <i class="fas fa-question-circle"></i> Quizzes
-    </a>
-    <a href="{{ route('teacher.students') }}" class="nav-link">
-        <i class="fas fa-user-graduate"></i> Students
-    </a>
-</nav>
+@include ('teacher.sidebar')
 @endsection
 
 @section('content')
@@ -79,17 +63,16 @@
                         <a href="{{ route('teacher.quizzes.edit', $quiz) }}" class="btn btn-sm btn-primary">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <form action="{{ route('teacher.quizzes.destroy', $quiz) }}" method="POST" onsubmit="return confirm('Are you sure?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
+                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $quiz->id }}">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
+
+    @include("modals.delete-modal")
+
     @empty
         <div class="col-12">
             <div class="alert alert-info">
@@ -99,8 +82,9 @@
     @endforelse
 </div>
 
-<div class="mt-4">
-    {{ $quizzes->links() }}
+@if($quizzes->hasPages())
+<div class="mt-4 d-flex justify-content-center">
+    {{ $quizzes->links('pagination::bootstrap-5') }}
 </div>
+@endif  
 @endsection
-

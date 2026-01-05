@@ -3,23 +3,7 @@
 @section('title', 'Students')
 
 @section('sidebar')
-<nav class="nav flex-column">
-    <a href="{{ route('teacher.dashboard') }}" class="nav-link">
-        <i class="fas fa-dashboard"></i> Dashboard
-    </a>
-    <a href="{{ route('teacher.topics.index') }}" class="nav-link">
-        <i class="fas fa-book"></i> Topics
-    </a>
-    <a href="{{ route('teacher.videos.index') }}" class="nav-link">
-        <i class="fas fa-video"></i> Videos
-    </a>
-    <a href="{{ route('teacher.quizzes.index') }}" class="nav-link">
-        <i class="fas fa-question-circle"></i> Quizzes
-    </a>
-    <a href="{{ route('teacher.students') }}" class="nav-link active">
-        <i class="fas fa-user-graduate"></i> Students
-    </a>
-</nav>
+@include ('teacher.sidebar')
 @endsection
 
 @section('content')

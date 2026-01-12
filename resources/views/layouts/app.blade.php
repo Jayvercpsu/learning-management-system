@@ -22,6 +22,7 @@
             color: white;
             overflow-y: auto;
             z-index: 1000;
+            transition: transform 0.3s ease;
         }
         .sidebar a {
             color: #ecf0f1;
@@ -38,6 +39,7 @@
             margin-left: 250px;
             background: white;
             min-height: 100vh;
+            transition: margin-left 0.3s ease;
         }
         .card {
             border: none;
@@ -60,19 +62,20 @@
             font-size: 1.5rem;
         }
 
-        /* Mobile responsive */
         @media (max-width: 767px) {
             .sidebar {
-                position: relative;
-                width: 100%;
-                height: auto;
+                transform: translateX(-100%);
+                position: fixed;
+                height: 100%;
+            }
+            .sidebar.active {
+                transform: translateX(0);
             }
             .main-content {
                 margin-left: 0;
             }
         }
 
-        /* Scrollbar styling for sidebar */
         .sidebar::-webkit-scrollbar {
             width: 6px;
         }
@@ -92,42 +95,46 @@
 <body>
     <div class="container-fluid p-0">
         <div class="row g-0">
-            <div class="col-md-2 p-0 sidebar d-none d-md-block">
-                <div class="p-4">
-                    <h4 class="text-center mb-4">
-                        <i class="fas fa-graduation-cap"></i> LMS
-                    </h4>
-                    <div class="mb-4">
-                        <small style="color: gray">{{ strtoupper(auth()->user()->role) }}</small>
-                        <p class="mb-0">{{ auth()->user()->name }}</p>
-                    </div>
-                </div>
-                @yield('sidebar')
-            </div>
+<div class="col-md-2 p-0 sidebar" id="sidebar">
+    <div class="d-md-none text-end p-2">
+        <button class="btn btn-sm btn-light" id="sidebarClose">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="p-4">
+        <h4 class="text-center mb-4">
+            <i class="fas fa-graduation-cap"></i> LMS
+        </h4>
+        <div class="mb-4">
+            <small style="color: gray">{{ strtoupper(auth()->user()->role) }}</small>
+            <p class="mb-0">{{ auth()->user()->name }}</p>
+        </div>
+    </div>
+    @yield('sidebar')
+</div>
 
-            <div class="col-md-10 main-content">
-                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
-                    <div class="container-fluid">
-                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
-                        <div class="collapse navbar-collapse" id="navbarNav">
-                            <ul class="navbar-nav ms-auto">
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                                        <i class="fas fa-user-circle"></i> {{ auth()->user()->name }}
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><a class="dropdown-item" href="{{ route('profile.show') }}"><i class="fas fa-user"></i> Profile</a></li>
-                                        <li><a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="fas fa-edit"></i> Edit Profile</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li>
-                                            <form action="{{ route('logout') }}" method="POST">
-                                                @csrf
-                                                <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                                            </form>
-                                        </li>
-                                    </ul>
+
+            <div class="col-md-10 main-content" id="mainContent">
+                <nav class="navbar navbar-light bg-white border-bottom">
+                    <div class="container-fluid d-flex justify-content-between align-items-center">
+                        <div>
+                            <button class="btn btn-outline-secondary d-md-none" id="sidebarToggle">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                        </div>
+                        <div class="dropdown ms-auto">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle"></i> {{ auth()->user()->name }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ route('profile.show') }}"><i class="fas fa-user"></i> Profile</a></li>
+                                <li><a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="fas fa-edit"></i> Edit Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{{ route('logout') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                                    </form>
                                 </li>
                             </ul>
                         </div>
@@ -156,6 +163,20 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarClose = document.getElementById('sidebarClose');
+    const sidebar = document.getElementById('sidebar');
+
+    sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.add('active');
+    });
+
+    sidebarClose.addEventListener('click', function() {
+        sidebar.classList.remove('active');
+    });
+</script>
+
     @stack('scripts')
 </body>
 </html>

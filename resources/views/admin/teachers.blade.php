@@ -3,18 +3,8 @@
 @section('title', 'Manage Teachers')
 
 @section('sidebar')
-<nav class="nav flex-column">
-    <a href="{{ route('admin.dashboard') }}" class="nav-link">
-        <i class="fas fa-dashboard"></i> Dashboard
-    </a>
-    <a href="{{ route('admin.teachers') }}" class="nav-link active">
-        <i class="fas fa-chalkboard-teacher"></i> Teachers
-    </a>
-    <a href="{{ route('admin.students') }}" class="nav-link">
-        <i class="fas fa-user-graduate"></i> Students
-    </a>
-</nav>
-@endsection
+@include ('admin.sidebar')
+@endsection 
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">

@@ -113,13 +113,39 @@
                         @enderror
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Bio</label>
-                        <textarea name="bio" class="form-control @error('bio') is-invalid @enderror" rows="4">{{ old('bio', $user->bio) }}</textarea>
-                        @error('bio')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+<div class="mb-3">
+    <label class="form-label">Bio</label>
+    <textarea name="bio" class="form-control @error('bio') is-invalid @enderror" rows="4">{{ old('bio', $user->bio) }}</textarea>
+    @error('bio')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</div>
+
+@if($user->isStudent())
+    <div class="mb-3">
+        <label class="form-label">Student ID</label>
+        <input type="text" name="student_id" class="form-control @error('student_id') is-invalid @enderror" value="{{ old('student_id', $user->student_id) }}">
+        @error('student_id')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Course</label>
+        <input type="text" name="course" class="form-control @error('course') is-invalid @enderror" value="{{ old('course', $user->course) }}">
+        @error('course')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Section</label>
+        <input type="text" name="section" class="form-control @error('section') is-invalid @enderror" value="{{ old('section', $user->section) }}">
+        @error('section')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+@endif
 
                     <hr class="my-4">
 

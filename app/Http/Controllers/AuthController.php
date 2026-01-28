@@ -38,7 +38,7 @@ class AuthController extends Controller
         // If user is admin, allow login without role selection
         if ($user->role === 'admin') {
             Auth::login($user);
-            return redirect()->route('admin.dashboard');
+            return redirect()->route('admin.dashboard')->with('login_success', true);
         }
 
         // For teacher and student, role must be selected
@@ -57,7 +57,7 @@ class AuthController extends Controller
             'student' => 'student.dashboard',
         ];
 
-        return redirect()->route($redirects[$user->role]);
+        return redirect()->route($redirects[$user->role])->with('login_success', true);
     }
 
     public function showRegister()
@@ -72,6 +72,9 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:teacher,student',
+            'student_id' => 'nullable|string|max:255|unique:users,student_id',
+            'course' => 'nullable|string|max:255',
+            'section' => 'nullable|string|max:255',
         ]);
 
         $user = User::create([
@@ -80,14 +83,25 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
             'is_approved' => $validated['role'] === 'student',
+            'student_id' => $validated['role'] === 'student' ? $validated['student_id'] : null,
+            'course' => $validated['role'] === 'student' ? $validated['course'] : null,
+            'section' => $validated['role'] === 'student' ? $validated['section'] : null,
         ]);
+        $message = $validated['role'] === 'teacher'
+            ? 'Registration successful! Please wait for admin approval.'
+            : 'Registration successful! Please login to continue.';
 
-        if ($validated['role'] === 'teacher') {
-            return redirect()->route('login')->with('success', 'Registration successful! Please wait for admin approval.');
+        if ($request->expectsJson() || $request->ajax()) {
+            session()->flash('success', $message);
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'redirect' => route('login')
+            ]);
         }
 
-        Auth::login($user);
-        return redirect()->route('student.dashboard');
+        return redirect()->route('login')->with('success', $message);
     }
 
     public function logout(Request $request)

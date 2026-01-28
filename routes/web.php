@@ -38,6 +38,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 Route::middleware(['auth', 'teacher'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/dashboard', [TeacherController::class, 'dashboard'])->name('dashboard');
     Route::get('/students', [TeacherController::class, 'students'])->name('students');
+
+    Route::get('/students/{student}/progress', [TeacherController::class, 'studentProgress'])->name('students.progress');
+    
     
     Route::get('/topics', [TopicController::class, 'index'])->name('topics.index');
     Route::get('/topics/create', [TopicController::class, 'create'])->name('topics.create');

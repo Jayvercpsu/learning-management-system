@@ -19,6 +19,9 @@ return new class extends Migration
             $table->string('password');
             $table->enum('role', ['admin', 'teacher', 'student'])->default('student');
             $table->boolean('is_approved')->default(false);
+            $table->string('course')->nullable();
+            $table->string('section')->nullable();
+            $table->string('student_id')->nullable();
             $table->string('profile_picture')->nullable();
             $table->text('bio')->nullable();
             $table->string('phone')->nullable();

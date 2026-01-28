@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,17 +14,20 @@
             display: flex;
             align-items: center;
         }
+
         .login-card {
             border: none;
             border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         }
+
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="row justify-content-center">
@@ -37,14 +41,19 @@
                         </div>
 
                         @if(session('success'))
-                            <div class="alert alert-success">{{ session('success') }}</div>
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
                         @endif
 
                         <form action="{{ route('login') }}" method="POST">
                             @csrf
                             <div class="mb-3">
                                 <label class="form-label">Email Address</label>
-                                <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}" required>
+                                <input type="email" name="email"
+                                    class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}"
+                                    required>
                                 @error('email')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -52,7 +61,8 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Password</label>
-                                <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required>
+                                <input type="password" name="password"
+                                    class="form-control @error('password') is-invalid @enderror" required>
                                 @error('password')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -62,12 +72,14 @@
                                 <label class="form-label">Login As</label>
                                 <select name="role" class="form-select @error('role') is-invalid @enderror">
                                     <option value="">Select Role</option>
-                                    <option value="teacher" {{ old('role') == 'teacher' ? 'selected' : '' }}>Teacher</option>
-                                    <option value="student" {{ old('role') == 'student' ? 'selected' : '' }}>Student</option>
+                                    <option value="teacher" {{ old('role') == 'teacher' ? 'selected' : '' }}>Teacher
+                                    </option>
+                                    <option value="student" {{ old('role') == 'student' ? 'selected' : '' }}>Student
+                                    </option>
                                 </select>
                                 @error('role')
                                     <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror 
+                                @enderror
                             </div>
 
                             <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
@@ -75,7 +87,8 @@
                             </button>
 
                             <div class="text-center">
-                                <p class="mb-0">Don't have an account? <a href="{{ route('register') }}">Register here</a></p>
+                                <p class="mb-0">Don't have an account? <a href="{{ route('register') }}">Register
+                                        here</a></p>
                             </div>
                         </form>
                     </div>
@@ -83,5 +96,8 @@
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

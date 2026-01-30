@@ -7,117 +7,7 @@
     <title>Register - LMS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            padding: 30px 0;
-        }
-
-        .register-card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-        }
-
-        .btn-loading .spinner-border {
-            width: 1rem;
-            height: 1rem;
-            border-width: 0.15em;
-        }
-
-        .success-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 99999;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .success-modal.show {
-            display: flex !important;
-        }
-
-        .success-content {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            text-align: center;
-            animation: slideDown 0.5s ease;
-        }
-
-        @keyframes slideDown {
-            from {
-                transform: translateY(-100px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .checkmark {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: block;
-            stroke-width: 3;
-            stroke: #4bb543;
-            stroke-miterlimit: 10;
-            margin: 10% auto;
-            box-shadow: inset 0px 0px 0px #4bb543;
-            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
-        }
-
-        .checkmark-circle {
-            stroke-dasharray: 166;
-            stroke-dashoffset: 166;
-            stroke-width: 3;
-            stroke-miterlimit: 10;
-            stroke: #4bb543;
-            fill: none;
-            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-        }
-
-        .checkmark-check {
-            transform-origin: 50% 50%;
-            stroke-dasharray: 48;
-            stroke-dashoffset: 48;
-            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
-        }
-
-        @keyframes stroke {
-            100% {
-                stroke-dashoffset: 0;
-            }
-        }
-
-        @keyframes scale {
-
-            0%,
-            100% {
-                transform: none;
-            }
-
-            50% {
-                transform: scale3d(1.1, 1.1, 1);
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}">
 </head>
 
 <body>
@@ -155,8 +45,28 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Password</label>
-                                <input type="password" name="password"
+                                <input type="password" name="password" id="passwordInput"
                                     class="form-control @error('password') is-invalid @enderror" required>
+                                <div class="password-strength">
+                                    <div class="password-strength-bar" id="strengthBar"></div>
+                                </div>
+                                <div class="password-requirements">
+                                    <small class="requirement" id="req-length">
+                                        <i class="fas fa-times-circle"></i> At least 8 characters
+                                    </small><br>
+                                    <small class="requirement" id="req-uppercase">
+                                        <i class="fas fa-times-circle"></i> One uppercase letter
+                                    </small><br>
+                                    <small class="requirement" id="req-lowercase">
+                                        <i class="fas fa-times-circle"></i> One lowercase letter
+                                    </small><br>
+                                    <small class="requirement" id="req-number">
+                                        <i class="fas fa-times-circle"></i> One number
+                                    </small><br>
+                                    <small class="requirement" id="req-special">
+                                        <i class="fas fa-times-circle"></i> One special character (@$!%*?&)
+                                    </small>
+                                </div>
                                 @error('password')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -250,71 +160,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.getElementById('roleSelect').addEventListener('change', function () {
-            const studentFields = document.getElementById('studentFields');
-            if (this.value === 'student') {
-                studentFields.style.display = 'block';
-            } else {
-                studentFields.style.display = 'none';
-            }
-        });
-
-        if (document.getElementById('roleSelect').value === 'student') {
-            document.getElementById('studentFields').style.display = 'block';
-        }
-
-        document.getElementById('registerForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const registerBtn = document.getElementById('registerBtn');
-            const btnText = document.getElementById('btnText');
-            const btnLoading = document.getElementById('btnLoading');
-            const form = this;
-
-            registerBtn.disabled = true;
-            btnText.style.display = 'none';
-            btnLoading.style.display = 'inline-block';
-
-            const formData = new FormData(form);
-
-            fetch(form.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            })
-                .then(response => {
-                    return response.json();
-                })
-                .then(data => {
-
-                    if (data.success) {
-
-                        btnText.style.display = 'inline-block';
-                        btnLoading.style.display = 'none';
-                        registerBtn.disabled = false;
-
-                        const modal = document.getElementById('successModal');
-                        const message = document.getElementById('successMessage');
-                        message.textContent = data.message;
-                        modal.classList.add('show');
-                        modal.style.display = 'flex';
-
-                        setTimeout(function () {
-                            window.location.href = data.redirect;
-                        }, 3000);
-                    } else {
-                        window.location.reload();
-                    }
-                })
-                .catch(error => {
-                    console.error('Fetch error:', error);
-                    form.submit();
-                });
-        });
-    </script>
+    <script src="{{ asset('assets/js/register.js') }}"></script>
 </body>
 
 </html>

@@ -70,11 +70,20 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/'
+            ],
             'role' => 'required|in:teacher,student',
             'student_id' => 'nullable|string|max:255|unique:users,student_id',
             'course' => 'nullable|string|max:255',
             'section' => 'nullable|string|max:255',
+        ], [
+            'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&).',
+            'email.unique' => 'This email is already registered. Please use a different email or login.',
         ]);
 
         $user = User::create([

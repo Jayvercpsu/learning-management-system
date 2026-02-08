@@ -86,6 +86,50 @@
 <h2 class="mb-4">Welcome, {{ auth()->user()->name }}!</h2>
 
 <div class="row g-4 mb-4">
+    <div class="col-12">
+        <div class="card dashboard-card border-0">
+            <div class="card-header bg-gradient text-black" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <h4 class="mb-0"><i class="fas fa-info-circle me-2 text-black"></i>All About GeoGebra</h4>
+            </div>
+            <div class="card-body p-4">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5 class="text-primary mb-3">What is GeoGebra?</h5>
+                        <p class="mb-3">GeoGebra is a dynamic mathematics software that brings together geometry, algebra, statistics, and calculus in one easy-to-use package. It's designed to help students visualize and understand mathematical concepts through interactive explorations.</p>
+                        
+                        <h6 class="text-primary mb-2"><i class="fas fa-check-circle me-2"></i>Key Definitions</h6>
+                        <ul class="list-unstyled mb-3">
+                            <li class="mb-2"><strong>Postulate:</strong> A statement accepted as true without proof, serving as a starting point for mathematical reasoning.</li>
+                            <li class="mb-2"><strong>Theorem:</strong> A mathematical statement that has been proven to be true based on previously established statements such as postulates and other theorems.</li>
+                            <li class="mb-2"><strong>Construction:</strong> The process of drawing geometric figures using only a compass and straightedge, or digitally in GeoGebra.</li>
+                        </ul>
+
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <strong>Pro Tip:</strong> Watch the tutorial video to learn how to use GeoGebra effectively for your geometry lessons!
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="ratio ratio-16x9 mb-3">
+                            <iframe src="https://www.youtube.com/embed/rEEAu5oAGUg" title="GeoGebra Tutorial - How to Use GeoGebra" allowfullscreen style="border: none;"></iframe>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a href="https://www.geogebra.org/" target="_blank" class="btn btn-primary">
+                                <i class="fas fa-external-link-alt me-2"></i>Visit GeoGebra Website
+                            </a>
+                            <a href="{{ route('student.topics') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-book me-2"></i>Explore Topics
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
     <div class="col-md-3">
         <div class="card stat-card">
             <div class="card-body">

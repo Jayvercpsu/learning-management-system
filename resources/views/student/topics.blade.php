@@ -38,11 +38,17 @@
                         </div>
                     @endif
                     
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="mb-2">
                         <small class="text-muted">
                             <i class="fas fa-file"></i> {{ $topic->getFileSizeFormatted() }}
                         </small>
-                        <a href="{{ route('student.topics.download', $topic) }}" class="btn btn-sm btn-primary">
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary flex-fill view-topic-btn" data-topic-id="{{ $topic->id }}" data-topic-title="{{ $topic->title }}" data-topic-url="{{ asset('storage/' . $topic->file_path) }}" data-topic-type="{{ $topic->file_type }}">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <a href="{{ route('student.topics.download', $topic) }}" class="btn btn-sm btn-primary flex-fill">
                             <i class="fas fa-download"></i> Download
                         </a>
                     </div>
@@ -60,6 +66,34 @@
 
 <div class="mt-4">
     {{ $topics->links() }}
+</div>
+
+<div class="modal fade" id="viewTopicModal" tabindex="-1" aria-labelledby="viewTopicModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewTopicModalLabel">
+                    <i class="fas fa-file-alt me-2"></i><span id="modalTopicTitle"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0" style="height: 80vh;">
+                <div id="fileViewer" class="w-100 h-100 d-flex align-items-center justify-content-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Close
+                </button>
+                <a id="downloadFromModal" href="#" class="btn btn-primary" download>
+                    <i class="fas fa-download me-2"></i>Download
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -89,6 +123,52 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.innerHTML = '<i class="fas fa-chevron-down"></i> Read More';
             }
         });
+    });
+
+    const viewButtons = document.querySelectorAll('.view-topic-btn');
+    const modal = new bootstrap.Modal(document.getElementById('viewTopicModal'));
+    const fileViewer = document.getElementById('fileViewer');
+    const modalTitle = document.getElementById('modalTopicTitle');
+    const downloadBtn = document.getElementById('downloadFromModal');
+    
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const topicTitle = this.getAttribute('data-topic-title');
+            const topicUrl = this.getAttribute('data-topic-url');
+            const topicType = this.getAttribute('data-topic-type');
+            
+            modalTitle.textContent = topicTitle;
+            downloadBtn.href = topicUrl;
+            
+            fileViewer.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
+            
+            modal.show();
+            
+            setTimeout(() => {
+                if (topicType === 'pdf') {
+                    fileViewer.innerHTML = `<iframe src="${topicUrl}" class="w-100 h-100" style="border: none;"></iframe>`;
+                } else if (['doc', 'docx'].includes(topicType)) {
+                    fileViewer.innerHTML = `<iframe src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(topicUrl)}" class="w-100 h-100" style="border: none;"></iframe>`;
+                } else if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(topicType)) {
+                    fileViewer.innerHTML = `<img src="${topicUrl}" class="img-fluid" alt="${topicTitle}" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
+                } else if (['txt', 'md'].includes(topicType)) {
+                    fetch(topicUrl)
+                        .then(response => response.text())
+                        .then(text => {
+                            fileViewer.innerHTML = `<div class="p-4 bg-light h-100 overflow-auto"><pre class="mb-0">${text}</pre></div>`;
+                        })
+                        .catch(error => {
+                            fileViewer.innerHTML = `<div class="alert alert-danger m-4">Error loading file. Please download to view.</div>`;
+                        });
+                } else {
+                    fileViewer.innerHTML = `<div class="alert alert-info m-4"><i class="fas fa-info-circle me-2"></i>Preview not available for this file type. Please download to view.</div>`;
+                }
+            }, 100);
+        });
+    });
+    
+    document.getElementById('viewTopicModal').addEventListener('hidden.bs.modal', function() {
+        fileViewer.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
     });
 });
 </script>

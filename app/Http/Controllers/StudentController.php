@@ -73,7 +73,7 @@ class StudentController extends Controller
             ->with('quiz')
             ->whereNotNull('submitted_at')
             ->latest()
-            ->paginate(15);
+            ->get();
 
         return view('student.quizzes.results', compact('attempts'));
     }

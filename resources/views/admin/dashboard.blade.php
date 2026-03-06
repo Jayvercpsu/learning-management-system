@@ -6,169 +6,208 @@
 @include ('admin.sidebar')
 @endsection
 
+@push('styles')
+<style>
+    .stat-tile {
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: #fff;
+        padding: 1rem;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
+    }
+
+    .stat-tile::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, #eef2ff 0%, #dbeafe 100%);
+        transform: translateX(-105%);
+        transition: transform 0.35s ease;
+        z-index: 0;
+    }
+
+    .stat-tile > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-tile:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 22px rgba(37, 99, 235, 0.14);
+    }
+
+    .stat-tile:hover::before {
+        transform: translateX(0);
+    }
+
+    .stat-label {
+        color: #6b7280;
+        font-size: 0.82rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        margin-bottom: 0.3rem;
+    }
+
+    .stat-value {
+        font-size: 1.55rem;
+        font-weight: 700;
+        margin-bottom: 0;
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: #eef2ff;
+        color: #1d4ed8;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+@endpush
+
 @section('content')
-<h2 class="mb-4">Admin Dashboard</h2>
-
-<div class="row g-4 mb-4">
-    <div class="col-md-4">
-        <div class="card stat-card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="mb-1">Total Teachers</h6>
-                        <h2 class="mb-0">{{ $stats['total_teachers'] }}</h2>
-                    </div>
-                    <i class="fas fa-chalkboard-teacher fa-3x opacity-50"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card stat-card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="mb-1">Pending Approvals</h6>
-                        <h2 class="mb-0">{{ $stats['pending_teachers'] }}</h2>
-                    </div>
-                    <i class="fas fa-clock fa-3x opacity-50"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card stat-card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="mb-1">Total Students</h6>
-                        <h2 class="mb-0">{{ $stats['total_students'] }}</h2>
-                    </div>
-                    <i class="fas fa-user-graduate fa-3x opacity-50"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card stat-card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="mb-1">Total Topics</h6>
-                        <h2 class="mb-0">{{ $stats['total_topics'] }}</h2>
-                    </div>
-                    <i class="fas fa-book fa-3x opacity-50"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card stat-card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="mb-1">Total Videos</h6>
-                        <h2 class="mb-0">{{ $stats['total_videos'] }}</h2>
-                    </div>
-                    <i class="fas fa-video fa-3x opacity-50"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card stat-card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="mb-1">Total Quizzes</h6>
-                        <h2 class="mb-0">{{ $stats['total_quizzes'] }}</h2>
-                    </div>
-                    <i class="fas fa-question-circle fa-3x opacity-50"></i>
-                </div>
-            </div>
-        </div>
-</div>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h2 class="mb-0">Admin Dashboard</h2>
+    <span class="text-muted small">Overview of users and learning resources</span>
 </div>
 
-<div class="row g-4 mb-4">
-    <div class="col-12">
-        <div class="card border-0 shadow-lg" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; overflow: hidden;">
-            <div class="card-body p-0">
-                <div class="row g-0">
-                    <div class="col-md-7 p-4 text-white">
-                        <h3 class="mb-3" style="font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
-                            <i class="fas fa-shapes me-2"></i>Geometry Learning Platform Overview
-                        </h3>
-                        <p class="mb-4" style="font-size: 1.05rem; line-height: 1.6; opacity: 0.95;">
-                            A comprehensive platform integrating GeoGebra for interactive geometry education. Monitor and support teachers and students as they explore geometric concepts through dynamic visualizations.
-                        </p>
-                        
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <div class="p-3" style="background: rgba(255,255,255,0.15); border-radius: 10px; backdrop-filter: blur(10px);">
-                                    <h6 class="mb-2" style="font-weight: 600;"><i class="fas fa-bookmark me-2"></i>Postulate</h6>
-                                    <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9;">A statement accepted as true without proof, forming the foundation of geometric reasoning.</p>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="p-3" style="background: rgba(255,255,255,0.15); border-radius: 10px; backdrop-filter: blur(10px);">
-                                    <h6 class="mb-2" style="font-weight: 600;"><i class="fas fa-certificate me-2"></i>Theorem</h6>
-                                    <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9;">A proven mathematical statement derived from postulates and previously proven theorems.</p>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="p-3" style="background: rgba(255,255,255,0.15); border-radius: 10px; backdrop-filter: blur(10px);">
-                                    <h6 class="mb-2" style="font-weight: 600;"><i class="fas fa-drafting-compass me-2"></i>Construction</h6>
-                                    <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9;">Creating geometric figures using compass and straightedge, or digitally with GeoGebra tools.</p>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="p-3" style="background: rgba(255,255,255,0.15); border-radius: 10px; backdrop-filter: blur(10px);">
-                                    <h6 class="mb-2" style="font-weight: 600;"><i class="fas fa-ruler-combined me-2"></i>Congruence</h6>
-                                    <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9;">When two figures have the same shape and size, with corresponding parts equal.</p>
-                                </div>
-                            </div>
-                        </div>
+<div class="row g-3 mb-3">
+    <div class="col-6 col-xl-4">
+        <div class="stat-tile">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Total Teachers</div>
+                    <p class="stat-value">{{ $stats['total_teachers'] }}</p>
+                </div>
+                <span class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-4">
+        <div class="stat-tile">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Pending Approvals</div>
+                    <p class="stat-value">{{ $stats['pending_teachers'] }}</p>
+                </div>
+                <span class="stat-icon"><i class="fas fa-clock"></i></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-4">
+        <div class="stat-tile">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Total Students</div>
+                    <p class="stat-value">{{ $stats['total_students'] }}</p>
+                </div>
+                <span class="stat-icon"><i class="fas fa-user-graduate"></i></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-4">
+        <div class="stat-tile">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Topics</div>
+                    <p class="stat-value">{{ $stats['total_topics'] }}</p>
+                </div>
+                <span class="stat-icon"><i class="fas fa-book"></i></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-4">
+        <div class="stat-tile">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Videos</div>
+                    <p class="stat-value">{{ $stats['total_videos'] }}</p>
+                </div>
+                <span class="stat-icon"><i class="fas fa-video"></i></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-4">
+        <div class="stat-tile">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Quizzes</div>
+                    <p class="stat-value">{{ $stats['total_quizzes'] }}</p>
+                </div>
+                <span class="stat-icon"><i class="fas fa-question-circle"></i></span>
+            </div>
+        </div>
+    </div>
+</div>
 
-                        <div class="d-flex gap-2 flex-wrap">
-                            <a href="https://www.geogebra.org/" target="_blank" class="btn btn-light px-4" style="border-radius: 25px; font-weight: 600;">
-                                <i class="fas fa-external-link-alt me-2"></i>Visit GeoGebra
-                            </a>
-                            <a href="{{ route('admin.teachers') }}" class="btn btn-outline-light px-4" style="border-radius: 25px; font-weight: 600; border: 2px solid white;">
-                                <i class="fas fa-users me-2"></i>Manage Users
-                            </a>
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="fas fa-compass me-2 text-primary"></i>Geometry Platform Highlights</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">
+                    Keep teacher and student workflows focused around clear geometry learning goals.
+                </p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="border rounded-3 p-3 h-100">
+                            <h6 class="mb-1">Postulate</h6>
+                            <p class="text-muted small mb-0">A statement accepted as true and used as a foundation.</p>
                         </div>
                     </div>
-                    
-                    <div class="col-md-5 p-4" style="background: rgba(0,0,0,0.2);">
-                        <h5 class="text-white mb-3" style="font-weight: 600;">
-                            <i class="fas fa-play-circle me-2"></i>Tutorial: Platform Overview
-                        </h5>
-                        <div class="ratio ratio-16x9 mb-3" style="border-radius: 10px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.3);">
-                         <iframe src="https://www.youtube.com/embed/rEEAu5oAGUg" title="GeoGebra Tutorial - How to Use GeoGebra" allowfullscreen style="border: none;"></iframe>
-                        </div>
-                        
-                        <div class="p-3 mb-3" style="background: rgba(255,255,255,0.15); border-radius: 10px; backdrop-filter: blur(10px);">
-                            <h6 class="text-white mb-2" style="font-weight: 600;"><i class="fas fa-cogs me-2"></i>Platform Features</h6>
-                            <ul class="text-white mb-0" style="font-size: 0.9rem; opacity: 0.9; line-height: 1.8;">
-                                <li>Manage teachers and students</li>
-                                <li>Monitor learning resources</li>
-                                <li>Track platform engagement</li>
-                                <li>Support educational growth</li>
-                            </ul>
-                        </div>
-
-                        <div class="text-center">
-                            <a href="#" class="btn btn-light btn-sm px-3" style="border-radius: 20px; font-weight: 600;">
-                                <i class="fas fa-video me-2"></i>More Tutorials
-                            </a>
+                    <div class="col-md-6">
+                        <div class="border rounded-3 p-3 h-100">
+                            <h6 class="mb-1">Theorem</h6>
+                            <p class="text-muted small mb-0">A mathematical statement proven from accepted truths.</p>
                         </div>
                     </div>
+                    <div class="col-md-6">
+                        <div class="border rounded-3 p-3 h-100">
+                            <h6 class="mb-1">Construction</h6>
+                            <p class="text-muted small mb-0">Drawing geometric figures using tools or GeoGebra.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="border rounded-3 p-3 h-100">
+                            <h6 class="mb-1">Congruence</h6>
+                            <p class="text-muted small mb-0">Figures with equal shape and size in all parts.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card mb-3">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2 text-primary"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body d-grid gap-2">
+                <a href="{{ route('admin.teachers') }}" class="btn btn-primary">
+                    <i class="fas fa-users me-2"></i>Manage Teachers
+                </a>
+                <a href="{{ route('admin.students') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-user-graduate me-2"></i>Manage Students
+                </a>
+                <a href="https://www.geogebra.org/" target="_blank" class="btn btn-outline-secondary">
+                    <i class="fas fa-external-link-alt me-2"></i>Open GeoGebra
+                </a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0"><i class="fas fa-play-circle me-2 text-primary"></i>Platform Tutorial</h6>
+            </div>
+            <div class="card-body">
+                <div class="ratio ratio-16x9">
+                    <iframe src="https://www.youtube.com/embed/rEEAu5oAGUg" title="GeoGebra Tutorial - How to Use GeoGebra" allowfullscreen style="border: 0;"></iframe>
                 </div>
             </div>
         </div>

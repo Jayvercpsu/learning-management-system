@@ -12,14 +12,14 @@
 <div class="card">
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover js-data-table">
                 <thead>
                     <tr>
                         <th>Quiz</th>
                         <th>Score</th>
                         <th>Status</th>
                         <th>Submitted</th>
-                        <th>Actions</th>
+                        <th class="no-sort">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -81,9 +81,6 @@
             </table>
         </div>
 
-        <div class="mt-3">
-            {{ $attempts->links() }}
-        </div>
     </div>
 </div>
 @endsection

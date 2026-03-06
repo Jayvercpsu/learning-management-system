@@ -8,229 +8,183 @@
 
 @push('styles')
 <style>
-    .stat-card {
-        position: relative;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        border: none;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    .student-overview {
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: #fff;
+        padding: 1rem;
     }
 
-    .stat-card::before {
+    .student-stat {
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: #fff;
+        padding: 0.95rem;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .student-stat::before {
         content: '';
         position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        transition: left 0.4s ease;
+        inset: 0;
+        background: linear-gradient(90deg, #eff6ff 0%, #dbeafe 100%);
+        transform: translateX(-105%);
+        transition: transform 0.35s ease;
         z-index: 0;
     }
 
-    .stat-card:hover::before {
-        left: 0;
-    }
-
-    .stat-card .card-body {
+    .student-stat > * {
         position: relative;
         z-index: 1;
-        transition: color 0.3s ease;
     }
 
-    .stat-card:hover .card-body h6,
-    .stat-card:hover .card-body h2 {
-        color: white;
+    .student-stat:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 22px rgba(37, 99, 235, 0.14);
     }
 
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    .student-stat:hover::before {
+        transform: translateX(0);
     }
 
-    .dashboard-card {
-        transition: all 0.3s ease;
-        border: none;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    .student-stat small {
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        font-size: 0.78rem;
     }
 
-    .dashboard-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    .student-stat h3 {
+        margin: 0.3rem 0 0;
+        font-weight: 700;
     }
 
-    .topic-item,
-    .video-item {
-        transition: all 0.3s ease;
-        padding: 12px;
-        border-radius: 8px;
+    .recent-resource {
+        border: 1px solid #edf0f3;
+        border-radius: 10px;
+        padding: 0.8rem;
+        margin-bottom: 0.7rem;
+        transition: transform 0.2s ease, background-color 0.2s ease;
     }
 
-    .topic-item:hover,
-    .video-item:hover {
-        background: linear-gradient(to right, rgba(102, 126, 234, 0.1), transparent);
-        transform: translateX(5px);
-    }
-
-    .action-btn {
-        transition: all 0.3s ease;
-    }
-
-    .action-btn:hover {
-        transform: scale(1.1);
+    .recent-resource:hover {
+        background: #f8fafc;
+        transform: translateX(2px);
     }
 </style>
 @endpush
 
 @section('content')
-<h2 class="mb-4">Welcome, {{ auth()->user()->name }}!</h2>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h2 class="mb-0">Welcome, {{ auth()->user()->name }}!</h2>
+    <a href="https://www.geogebra.org/" target="_blank" class="btn btn-outline-primary btn-sm">
+        <i class="fas fa-external-link-alt me-1"></i>Open GeoGebra
+    </a>
+</div>
 
-<div class="row g-4 mb-4">
-    <div class="col-12">
-        <div class="card dashboard-card border-0">
-            <div class="card-header bg-gradient text-black" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <h4 class="mb-0"><i class="fas fa-info-circle me-2 text-black"></i>All About GeoGebra</h4>
-            </div>
-            <div class="card-body p-4">
-                <div class="row">
-                    <div class="col-md-8">
-                        <h5 class="text-primary mb-3">What is GeoGebra?</h5>
-                        <p class="mb-3">GeoGebra is a dynamic mathematics software that brings together geometry, algebra, statistics, and calculus in one easy-to-use package. It's designed to help students visualize and understand mathematical concepts through interactive explorations.</p>
-                        
-                        <h6 class="text-primary mb-2"><i class="fas fa-check-circle me-2"></i>Key Definitions</h6>
-                        <ul class="list-unstyled mb-3">
-                            <li class="mb-2"><strong>Postulate:</strong> A statement accepted as true without proof, serving as a starting point for mathematical reasoning.</li>
-                            <li class="mb-2"><strong>Theorem:</strong> A mathematical statement that has been proven to be true based on previously established statements such as postulates and other theorems.</li>
-                            <li class="mb-2"><strong>Construction:</strong> The process of drawing geometric figures using only a compass and straightedge, or digitally in GeoGebra.</li>
-                        </ul>
-
-                        <div class="alert alert-info mb-0">
-                            <i class="fas fa-lightbulb me-2"></i>
-                            <strong>Pro Tip:</strong> Watch the tutorial video to learn how to use GeoGebra effectively for your geometry lessons!
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-4">
-                        <div class="ratio ratio-16x9 mb-3">
-                            <iframe src="https://www.youtube.com/embed/rEEAu5oAGUg" title="GeoGebra Tutorial - How to Use GeoGebra" allowfullscreen style="border: none;"></iframe>
-                        </div>
-                        <div class="d-grid gap-2">
-                            <a href="https://www.geogebra.org/" target="_blank" class="btn btn-primary">
-                                <i class="fas fa-external-link-alt me-2"></i>Visit GeoGebra Website
-                            </a>
-                            <a href="{{ route('student.topics') }}" class="btn btn-outline-primary">
-                                <i class="fas fa-book me-2"></i>Explore Topics
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<div class="student-overview mb-3">
+    <div class="row g-3 align-items-center">
+        <div class="col-lg-8">
+            <h5 class="mb-2">Learn Geometry with Interactive Tools</h5>
+            <p class="text-muted mb-0">
+                Review uploaded topics and videos, then take quizzes to measure your progress.
+            </p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <a href="{{ route('student.topics') }}" class="btn btn-primary btn-sm me-2">
+                <i class="fas fa-book me-1"></i>Topics
+            </a>
+            <a href="{{ route('student.quizzes') }}" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-pen me-1"></i>Quizzes
+            </a>
         </div>
     </div>
 </div>
 
-<div class="row g-4 mb-4">
-    <div class="col-md-3">
-        <div class="card stat-card">
-            <div class="card-body">
-                <h6 class="mb-1">Available Topics</h6>
-                <h2 class="mb-0">{{ $stats['available_topics'] }}</h2>
-            </div>
+<div class="row g-3 mb-3">
+    <div class="col-6 col-xl-3">
+        <div class="student-stat">
+            <small>Available Topics</small>
+            <h3>{{ $stats['available_topics'] }}</h3>
         </div>
     </div>
-
-    <div class="col-md-3">
-        <div class="card stat-card">
-            <div class="card-body">
-                <h6 class="mb-1">Available Videos</h6>
-                <h2 class="mb-0">{{ $stats['available_videos'] }}</h2>
-            </div>
+    <div class="col-6 col-xl-3">
+        <div class="student-stat">
+            <small>Available Videos</small>
+            <h3>{{ $stats['available_videos'] }}</h3>
         </div>
     </div>
-
-    <div class="col-md-3">
-        <div class="card stat-card">
-            <div class="card-body">
-                <h6 class="mb-1">Available Quizzes</h6>
-                <h2 class="mb-0">{{ $stats['available_quizzes'] }}</h2>
-            </div>
+    <div class="col-6 col-xl-3">
+        <div class="student-stat">
+            <small>Available Quizzes</small>
+            <h3>{{ $stats['available_quizzes'] }}</h3>
         </div>
     </div>
-
-    <div class="col-md-3">
-        <div class="card stat-card">
-            <div class="card-body">
-                <h6 class="mb-1">Completed Quizzes</h6>
-                <h2 class="mb-0">{{ $stats['completed_quizzes'] }}</h2>
-            </div>
+    <div class="col-6 col-xl-3">
+        <div class="student-stat">
+            <small>Completed Quizzes</small>
+            <h3>{{ $stats['completed_quizzes'] }}</h3>
         </div>
     </div>
 </div>
 
-<div class="row g-4">
-    <div class="col-md-6">
-        <div class="card dashboard-card">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="fas fa-book text-primary me-2"></i>Recent Topics</h5>
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="fas fa-book me-2 text-primary"></i>Recent Topics</h5>
             </div>
             <div class="card-body">
                 @forelse($recentTopics as $topic)
-                    <div class="topic-item mb-3">
+                    <div class="recent-resource">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="mb-1">{{ $topic->title }}</h6>
-                                <small class="text-muted"><i class="far fa-clock me-1"></i>{{ $topic->created_at->diffForHumans() }}</small>
+                                <small class="text-muted">{{ $topic->created_at->diffForHumans() }}</small>
                             </div>
-                            <a href="{{ route('student.topics.download', $topic) }}" class="btn btn-sm btn-primary action-btn">
+                            <a href="{{ route('student.topics.download', $topic) }}" class="btn btn-sm btn-outline-primary">
                                 <i class="fas fa-download"></i>
                             </a>
                         </div>
                     </div>
                 @empty
-                    <div class="text-center py-4">
-                        <i class="fas fa-book fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">No topics available yet.</p>
-                    </div>
+                    <p class="text-muted mb-0">No topics available yet.</p>
                 @endforelse
-                
+
                 @if($recentTopics->count() > 0)
-                    <a href="{{ route('student.topics') }}" class="btn btn-outline-primary w-100 mt-2">
-                        View All Topics
-                    </a>
+                    <a href="{{ route('student.topics') }}" class="btn btn-outline-primary btn-sm w-100 mt-2">View All Topics</a>
                 @endif
             </div>
         </div>
     </div>
 
-    <div class="col-md-6">
-        <div class="card dashboard-card">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="fas fa-video text-success me-2"></i>Recent Videos</h5>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="fas fa-video me-2 text-primary"></i>Recent Videos</h5>
             </div>
             <div class="card-body">
                 @forelse($recentVideos as $video)
-                    <div class="video-item mb-3">
+                    <div class="recent-resource">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="mb-1">{{ $video->title }}</h6>
-                                <small class="text-muted"><i class="far fa-clock me-1"></i>{{ $video->created_at->diffForHumans() }}</small>
+                                <small class="text-muted">{{ $video->created_at->diffForHumans() }}</small>
                             </div>
-                            <a href="{{ route('student.videos.watch', $video) }}" class="btn btn-sm btn-success action-btn">
+                            <a href="{{ route('student.videos.watch', $video) }}" class="btn btn-sm btn-outline-primary">
                                 <i class="fas fa-play"></i>
                             </a>
                         </div>
                     </div>
                 @empty
-                    <div class="text-center py-4">
-                        <i class="fas fa-video fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">No videos available yet.</p>
-                    </div>
+                    <p class="text-muted mb-0">No videos available yet.</p>
                 @endforelse
-                
+
                 @if($recentVideos->count() > 0)
-                    <a href="{{ route('student.videos') }}" class="btn btn-outline-success w-100 mt-2">
-                        View All Videos
-                    </a>
+                    <a href="{{ route('student.videos') }}" class="btn btn-outline-primary btn-sm w-100 mt-2">View All Videos</a>
                 @endif
             </div>
         </div>

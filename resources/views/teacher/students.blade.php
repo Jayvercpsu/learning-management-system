@@ -8,64 +8,58 @@
 
 @push('styles')
 <style>
-    .student-card {
-        transition: all 0.3s ease;
-        border: none;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    .students-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
     }
 
-    .student-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    .student-count {
+        border: 1px solid #dbe3ef;
+        background: #ffffff;
+        border-radius: 999px;
+        padding: 0.38rem 0.8rem;
+        font-size: 0.85rem;
+        color: #475569;
+        font-weight: 600;
     }
 
-    .table-hover tbody tr {
-        transition: all 0.3s ease;
+    .student-name {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
     }
 
-    .table-hover tbody tr:hover {
-        background: linear-gradient(to right, rgba(102, 126, 234, 0.05), transparent);
-        transform: translateX(3px);
+    .avatar-circle {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        color: #1f2937;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
     }
 
     .action-btn {
-        transition: all 0.3s ease;
-    }
-
-    .action-btn:hover {
-        transform: scale(1.1);
-    }
-
-    .stats-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 500;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-    }
-
-    .stats-badge i {
-        margin-right: 5px;
+        white-space: nowrap;
     }
 </style>
 @endpush
 
 @section('content')
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="students-header flex-wrap">
         <h2 class="mb-0">Registered Students</h2>
-        <div class="stats-badge">
-            <i class="fas fa-users"></i>
-            <span>{{ $students->total() }} Students</span>
-        </div>
+        <span class="student-count"><i class="fas fa-users me-1"></i>{{ $students->count() }} Students</span>
     </div>
 
-    <div class="card student-card">
-        <div class="card-body">
+    <div class="card">
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle mb-0 js-data-table">
                     <thead>
                         <tr>
                             <th>Name</th>
@@ -75,73 +69,38 @@
                             <th>Section</th>
                             <th>Student ID</th>
                             <th>Registered</th>
-                            <th class="text-center">Actions</th>
+                            <th class="text-center no-sort">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($students as $student)
                             <tr>
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-circle me-2">
-                                            <i class="fas fa-user-graduate"></i>
-                                        </div>
-                                        <strong>{{ $student->name }}</strong>
+                                    <div class="student-name">
+                                        <span class="avatar-circle"><i class="fas fa-user-graduate"></i></span>
+                                        <span class="fw-semibold">{{ $student->name }}</span>
                                     </div>
                                 </td>
                                 <td>{{ $student->email }}</td>
                                 <td>{{ $student->phone ?? 'N/A' }}</td>
                                 <td>{{ $student->course ?? 'N/A' }}</td>
                                 <td>{{ $student->section ?? 'N/A' }}</td>
-                                <td>
-                                    <span class="badge bg-secondary">{{ $student->student_id ?? 'N/A' }}</span>
-                                </td>
-                                <td>
-                                    <small class="text-muted">
-                                        <i class="far fa-calendar me-1"></i>{{ $student->created_at->format('M d, Y') }}
-                                    </small>
-                                </td>
+                                <td>{{ $student->student_id ?? 'N/A' }}</td>
+                                <td>{{ $student->created_at->format('M d, Y') }}</td>
                                 <td class="text-center">
-                                    <a href="{{ route('teacher.students.progress', $student->id) }}" 
-                                       class="btn btn-sm btn-primary action-btn" 
-                                       title="View Progress">
+                                    <a href="{{ route('teacher.students.progress', $student->id) }}" class="btn btn-sm btn-primary action-btn">
                                         <i class="fas fa-chart-line me-1"></i>View Progress
                                     </a>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-5">
-                                    <i class="fas fa-user-graduate fa-3x text-muted mb-3"></i>
-                                    <p class="text-muted mb-0">No students registered yet.</p>
-                                </td>
+                                <td colspan="8" class="text-center py-5 text-muted">No students registered yet.</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-
-            @if($students->hasPages())
-                <div class="mt-4">
-                    {{ $students->links() }}
-                </div>
-            @endif
         </div>
     </div>
 @endsection
-
-@push('styles')
-<style>
-    .avatar-circle {
-        width: 35px;
-        height: 35px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 0.9rem;
-    }
-</style>
-@endpush

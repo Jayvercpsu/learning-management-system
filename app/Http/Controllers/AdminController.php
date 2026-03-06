@@ -27,7 +27,10 @@ class AdminController extends Controller
 
     public function teachers()
     {
-        $teachers = User::where('role', 'teacher')->latest()->paginate(15);
+        $teachers = User::where('role', 'teacher')
+            ->latest()
+            ->get();
+
         return view('admin.teachers', compact('teachers'));
     }
 
@@ -53,7 +56,10 @@ class AdminController extends Controller
 
     public function students()
     {
-        $students = User::where('role', 'student')->latest()->paginate(15);
+        $students = User::where('role', 'student')
+            ->latest()
+            ->get();
+
         return view('admin.students', compact('students'));
     }
 

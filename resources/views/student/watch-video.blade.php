@@ -19,7 +19,7 @@
         
         <div class="ratio ratio-16x9 mb-4">
             <video controls class="w-100">
-                <source src="{{ asset('storage/' . $video->video_path) }}" type="video/mp4">
+                <source src="{{ $video->video_url }}" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
         </div>

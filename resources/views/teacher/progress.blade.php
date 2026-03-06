@@ -138,59 +138,59 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0 js-data-table">
-                            <thead>
-                                <tr>
-                                    <th>Quiz</th>
-                                    <th>Score</th>
-                                    <th>Status</th>
-                                    <th>Points</th>
-                                    <th>Duration</th>
-                                    <th>Submitted</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($quizResults as $result)
-                                    @php
-                                        $quizTitle = optional($result->quiz)->title ?? 'Deleted quiz';
-                                        $passingScore = optional($result->quiz)->passing_score ?? 75;
-                                        $hasScore = $result->score !== null;
-                                    @endphp
+                        @if($quizResults->isNotEmpty())
+                            <table class="table table-hover align-middle mb-0 js-data-table">
+                                <thead>
                                     <tr>
-                                        <td class="fw-semibold">{{ $quizTitle }}</td>
-                                        <td>
-                                            @if($hasScore)
-                                                <span class="badge bg-{{ $result->score >= $passingScore ? 'success' : 'danger' }}">
-                                                    {{ number_format($result->score, 1) }}%
-                                                </span>
-                                            @else
-                                                <span class="badge bg-secondary">Pending</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if(!$result->quiz)
-                                                <span class="badge bg-secondary">Quiz Deleted</span>
-                                            @elseif(!$result->is_checked || !$hasScore)
-                                                <span class="badge bg-warning text-dark">For Grading</span>
-                                            @elseif($result->score >= $passingScore)
-                                                <span class="badge bg-success">Passed</span>
-                                            @else
-                                                <span class="badge bg-danger">Failed</span>
-                                            @endif
-                                        </td>
-                                        <td>{{ $result->earned_points }}/{{ $result->total_points }}</td>
-                                        <td>{{ $result->duration_display }}</td>
-                                        <td>{{ optional($result->submitted_at)->format('M d, Y h:i A') }}</td>
+                                        <th>Quiz</th>
+                                        <th>Score</th>
+                                        <th>Status</th>
+                                        <th>Points</th>
+                                        <th>Duration</th>
+                                        <th>Submitted</th>
                                     </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center py-5 text-muted">
-                                            No submitted quiz attempts yet.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    @foreach($quizResults as $result)
+                                        @php
+                                            $quizTitle = optional($result->quiz)->title ?? 'Deleted quiz';
+                                            $passingScore = optional($result->quiz)->passing_score ?? 75;
+                                            $hasScore = $result->score !== null;
+                                        @endphp
+                                        <tr>
+                                            <td class="fw-semibold">{{ $quizTitle }}</td>
+                                            <td>
+                                                @if($hasScore)
+                                                    <span class="badge bg-{{ $result->score >= $passingScore ? 'success' : 'danger' }}">
+                                                        {{ number_format($result->score, 1) }}%
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-secondary">Pending</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if(!$result->quiz)
+                                                    <span class="badge bg-secondary">Quiz Deleted</span>
+                                                @elseif(!$result->is_checked || !$hasScore)
+                                                    <span class="badge bg-warning text-dark">For Grading</span>
+                                                @elseif($result->score >= $passingScore)
+                                                    <span class="badge bg-success">Passed</span>
+                                                @else
+                                                    <span class="badge bg-danger">Failed</span>
+                                                @endif
+                                            </td>
+                                            <td>{{ $result->earned_points }}/{{ $result->total_points }}</td>
+                                            <td>{{ $result->duration_display }}</td>
+                                            <td>{{ optional($result->submitted_at)->format('M d, Y h:i A') }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        @else
+                            <div class="text-center py-5 text-muted">
+                                No submitted quiz attempts yet.
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

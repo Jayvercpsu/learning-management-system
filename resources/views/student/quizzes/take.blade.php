@@ -40,7 +40,7 @@
 
                         @if($question->image)
                             <div class="mb-3">
-                                <img src="{{ asset('storage/' . $question->image) }}" alt="Question image" class="img-fluid" style="max-height: 300px;">
+                                <img src="{{ $question->image_url }}" alt="Question image" class="img-fluid" style="max-height: 300px;">
                             </div>
                         @endif
 

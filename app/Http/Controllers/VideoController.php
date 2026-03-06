@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Video;
-use Illuminate\Support\Facades\Storage;
+use App\Services\MediaStorageService;
 use Illuminate\Http\Exceptions\PostTooLargeException;
+use Illuminate\Http\Request;
 
 class VideoController extends Controller
 {
+    public function __construct(private MediaStorageService $mediaStorage)
+    {
+    }
+
     public function index()
     {
         /** @var User $user */
@@ -40,7 +44,7 @@ class VideoController extends Controller
             }
 
             $filename = time() . '_' . $file->getClientOriginalName();
-            $path = $file->storeAs('videos', $filename, 'public');
+            $path = $this->mediaStorage->store($file, 'videos', $filename);
 
             Video::create([
                 'user_id' => auth()->id(),
@@ -67,9 +71,9 @@ class VideoController extends Controller
             abort(403);
         }
 
-        Storage::disk('public')->delete($video->video_path);
+        $this->mediaStorage->delete($video->video_path);
         if ($video->thumbnail) {
-            Storage::disk('public')->delete($video->thumbnail);
+            $this->mediaStorage->delete($video->thumbnail);
         }
         $video->delete();
 

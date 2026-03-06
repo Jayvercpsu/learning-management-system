@@ -30,7 +30,7 @@
                             </div>
                         @endif
 
-                        <form action="{{ route('login') }}" method="POST">
+                        <form action="{{ route('login') }}" method="POST" id="loginForm">
                             @csrf
                             <div class="mb-3">
                                 <label class="form-label">Email Address</label>
@@ -65,7 +65,7 @@
                                 @enderror
                             </div>
 
-                            <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
+                            <button type="submit" class="btn btn-primary w-100 py-2 mb-3" id="loginBtn">
                                 <i class="fas fa-sign-in-alt"></i> Login
                             </button>
 
@@ -81,6 +81,26 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            const form = document.getElementById('loginForm');
+            const button = document.getElementById('loginBtn');
+
+            if (!form || !button) {
+                return;
+            }
+
+            form.addEventListener('submit', function () {
+                if (button.dataset.loadingApplied === '1') {
+                    return;
+                }
+
+                button.dataset.loadingApplied = '1';
+                button.disabled = true;
+                button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Signing in...';
+            });
+        })();
+    </script>
 </body>
 
 </html>

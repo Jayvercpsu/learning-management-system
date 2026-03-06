@@ -2,16 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Topic;
 use App\Models\Video;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
-use Illuminate\Support\Facades\Storage;
+use App\Services\MediaStorageService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class StudentController extends Controller
 {
+    public function __construct(private MediaStorageService $mediaStorage)
+    {
+    }
+
     public function dashboard()
     {
         $stats = [
@@ -37,13 +42,21 @@ class StudentController extends Controller
 
     public function downloadTopic(Topic $topic)
     {
-        $path = storage_path('app/public/' . $topic->file_path);
-        
-        if (!file_exists($path)) {
+        if ($this->mediaStorage->isRemotePath($topic->file_path)) {
+            $remoteUrl = $topic->file_url;
+            if (! $remoteUrl) {
+                abort(404);
+            }
+
+            return redirect()->away($this->cloudinaryAttachmentUrl($remoteUrl));
+        }
+
+        $path = $this->mediaStorage->localAbsolutePath($topic->file_path);
+        if (!$path || !file_exists($path)) {
             abort(404);
         }
 
-        return response()->download($path);
+        return response()->download($path, $this->topicDownloadFilename($topic));
     }
 
     public function videos()
@@ -99,5 +112,59 @@ class StudentController extends Controller
         $pdf = Pdf::loadView('student.quizzes.pdf-result', compact('attempt'));
         
         return $pdf->download('quiz-result-' . $attempt->id . '.pdf');
+    }
+
+    private function topicDownloadFilename(Topic $topic): string
+    {
+        $base = Str::slug($topic->title ?: ('topic-' . $topic->id));
+        if ($base === '') {
+            $base = 'topic-' . $topic->id;
+        }
+
+        $extension = strtolower((string) $topic->file_type);
+        if ($extension !== '') {
+            return $base . '.' . $extension;
+        }
+
+        return $base;
+    }
+
+    private function cloudinaryAttachmentUrl(string $url): string
+    {
+        $parts = parse_url($url);
+        $host = strtolower((string) ($parts['host'] ?? ''));
+        if ($host === '') {
+            return $url;
+        }
+
+        $configuredCname = strtolower((string) config('media.cloudinary.cname', ''));
+        $isCloudinaryHost = str_contains($host, 'res.cloudinary.com')
+            || ($configuredCname !== '' && $host === $configuredCname);
+
+        if (! $isCloudinaryHost) {
+            return $url;
+        }
+
+        $path = trim((string) ($parts['path'] ?? ''), '/');
+        if ($path === '') {
+            return $url;
+        }
+
+        $segments = array_values(array_filter(explode('/', $path)));
+        $uploadIndex = array_search('upload', $segments, true);
+        if ($uploadIndex === false) {
+            return $url;
+        }
+
+        $nextSegment = (string) ($segments[$uploadIndex + 1] ?? '');
+        if (! str_contains($nextSegment, 'fl_attachment')) {
+            array_splice($segments, $uploadIndex + 1, 0, ['fl_attachment']);
+        }
+
+        $scheme = (string) ($parts['scheme'] ?? 'https');
+        $port = isset($parts['port']) ? ':' . $parts['port'] : '';
+        $query = isset($parts['query']) ? '?' . $parts['query'] : '';
+
+        return $scheme . '://' . $host . $port . '/' . implode('/', $segments) . $query;
     }
 }

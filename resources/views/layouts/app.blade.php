@@ -153,6 +153,11 @@
             border-color: var(--accent-hover);
         }
 
+        .btn.is-loading,
+        .dropdown-item.is-loading {
+            opacity: 0.88;
+        }
+
         .table > :not(caption) > * > * {
             border-color: #edf0f3;
         }
@@ -508,6 +513,142 @@
                             "<'row align-items-center gy-2 mt-2'<'col-sm-7'i><'col-sm-5 d-flex justify-content-sm-end'p>>"
                     });
                 });
+            });
+        })();
+
+        (function () {
+            function inferLoadingText(trigger) {
+                const customText = (trigger.getAttribute('data-loading-text') || '').trim();
+                if (customText) {
+                    return customText;
+                }
+
+                const label = (trigger.textContent || trigger.value || '').trim().toLowerCase();
+
+                if (label.includes('upload')) return 'Uploading...';
+                if (label.includes('save')) return 'Saving...';
+                if (label.includes('submit')) return 'Submitting...';
+                if (label.includes('delete') || label.includes('remove')) return 'Deleting...';
+                if (label.includes('update')) return 'Updating...';
+                if (label.includes('approve')) return 'Approving...';
+                if (label.includes('reject')) return 'Rejecting...';
+                if (label.includes('login') || label.includes('sign in')) return 'Signing in...';
+                if (label.includes('logout') || label.includes('sign out')) return 'Signing out...';
+                if (label.includes('register') || label.includes('sign up')) return 'Registering...';
+
+                return 'Processing...';
+            }
+
+            function setButtonLoadingState(button, loadingText) {
+                if (!button || button.dataset.loadingApplied === '1') {
+                    return;
+                }
+
+                button.dataset.loadingApplied = '1';
+                button.disabled = true;
+                button.classList.add('is-loading');
+                button.setAttribute('aria-busy', 'true');
+
+                if (button.tagName === 'INPUT') {
+                    if (!button.dataset.originalValue) {
+                        button.dataset.originalValue = button.value;
+                    }
+                    button.value = loadingText;
+                    return;
+                }
+
+                if (!button.dataset.originalHtml) {
+                    button.dataset.originalHtml = button.innerHTML;
+                }
+
+                button.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>${loadingText}`;
+            }
+
+            function getSubmitButtons(form) {
+                return Array.from(form.querySelectorAll('button[type="submit"], input[type="submit"]'));
+            }
+
+            document.addEventListener('submit', function (event) {
+                const form = event.target;
+                if (!(form instanceof HTMLFormElement)) {
+                    return;
+                }
+
+                if (form.hasAttribute('data-no-loading')) {
+                    return;
+                }
+
+                const method = (form.getAttribute('method') || 'GET').toUpperCase();
+                if (method === 'GET') {
+                    return;
+                }
+
+                if (form.dataset.submitting === '1') {
+                    event.preventDefault();
+                    return;
+                }
+
+                let submitter = event.submitter;
+                if (!submitter && form.contains(document.activeElement)) {
+                    const active = document.activeElement;
+                    if (active && (active.tagName === 'BUTTON' || active.tagName === 'INPUT')) {
+                        const type = (active.getAttribute('type') || 'submit').toLowerCase();
+                        if (type === 'submit') {
+                            submitter = active;
+                        }
+                    }
+                }
+
+                const submitButtons = getSubmitButtons(form);
+                if (!submitter && submitButtons.length > 0) {
+                    submitter = submitButtons[0];
+                }
+
+                form.dataset.submitting = '1';
+
+                if (submitter) {
+                    setButtonLoadingState(submitter, inferLoadingText(submitter));
+                }
+
+                submitButtons.forEach(function (button) {
+                    if (button !== submitter) {
+                        button.disabled = true;
+                    }
+                });
+            }, true);
+
+            document.addEventListener('click', function (event) {
+                const trigger = event.target.closest('[data-submit-form]');
+                if (!trigger) {
+                    return;
+                }
+
+                const formId = trigger.getAttribute('data-submit-form');
+                if (!formId) {
+                    return;
+                }
+
+                const form = document.getElementById(formId);
+                if (!(form instanceof HTMLFormElement)) {
+                    return;
+                }
+
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
+                event.preventDefault();
+
+                if (trigger.tagName === 'BUTTON' || trigger.tagName === 'INPUT') {
+                    setButtonLoadingState(trigger, inferLoadingText(trigger));
+                }
+
+                if (typeof form.requestSubmit === 'function') {
+                    form.requestSubmit();
+                } else {
+                    form.submit();
+                }
             });
         })();
     </script>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\MediaStorageService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -35,5 +36,29 @@ class Topic extends Model
         } else {
             return $bytes . ' bytes';
         }
+    }
+
+    public function getFileUrlAttribute(): ?string
+    {
+        if (! $this->file_path) {
+            return null;
+        }
+
+        $url = app(MediaStorageService::class)->url($this->file_path);
+        if (! $url) {
+            return null;
+        }
+
+        $fileType = strtolower((string) $this->file_type);
+        if ($fileType !== '') {
+            $normalizedUrl = strtolower($url);
+            $tmpSuffix = '.' . $fileType . '.tmp';
+
+            if (str_ends_with($normalizedUrl, $tmpSuffix)) {
+                return substr($url, 0, -4);
+            }
+        }
+
+        return $url;
     }
 }

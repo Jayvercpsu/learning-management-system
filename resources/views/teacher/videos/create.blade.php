@@ -14,7 +14,7 @@
                 <h4 class="mb-0">Upload New Video</h4>
             </div>
             <div class="card-body">
-                <form action="{{ route('teacher.videos.store') }}" method="POST" enctype="multipart/form-data" id="videoUploadForm">
+                <form action="{{ route('teacher.videos.store') }}" method="POST" enctype="multipart/form-data" id="videoUploadForm" data-no-loading>
                     @csrf
 
                     <div class="mb-3">

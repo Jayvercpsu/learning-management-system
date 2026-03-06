@@ -50,7 +50,7 @@
                     </div>
                     
                     <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-sm btn-outline-primary flex-fill view-topic-btn" data-topic-id="{{ $topic->id }}" data-topic-title="{{ $topic->title }}" data-topic-url="{{ asset('storage/' . $topic->file_path) }}" data-topic-type="{{ $topic->file_type }}">
+                        <button type="button" class="btn btn-sm btn-outline-primary flex-fill view-topic-btn" data-topic-id="{{ $topic->id }}" data-topic-title="{{ $topic->title }}" data-topic-url="{{ $topic->file_url }}" data-topic-type="{{ $topic->file_type }}">
                             <i class="fas fa-eye"></i> View
                         </button>
                         <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $topic->id }}">
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function() {
             const topicTitle = this.getAttribute('data-topic-title');
             const topicUrl = this.getAttribute('data-topic-url');
-            const topicType = this.getAttribute('data-topic-type');
+            const topicType = (this.getAttribute('data-topic-type') || '').toLowerCase();
             
             modalTitle.textContent = topicTitle;
             
@@ -151,7 +151,17 @@ document.addEventListener('DOMContentLoaded', function() {
             
             setTimeout(() => {
                 if (topicType === 'pdf') {
-                    fileViewer.innerHTML = `<iframe src="${topicUrl}" class="w-100 h-100" style="border: none;"></iframe>`;
+                    fileViewer.innerHTML = `
+                        <object data="${topicUrl}" type="application/pdf" class="w-100 h-100">
+                            <embed src="${topicUrl}" type="application/pdf" class="w-100 h-100" />
+                            <div class="p-4 text-center">
+                                <p class="mb-3">PDF preview is not supported on this device.</p>
+                                <a href="${topicUrl}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-external-link-alt me-1"></i>Open PDF
+                                </a>
+                            </div>
+                        </object>
+                    `;
                 } else if (['doc', 'docx'].includes(topicType)) {
                     fileViewer.innerHTML = `<iframe src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(topicUrl)}" class="w-100 h-100" style="border: none;"></iframe>`;
                 } else if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(topicType)) {

@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Topic;
 use App\Models\User;
-use Illuminate\Support\Facades\Storage;
+use App\Services\MediaStorageService;
+use Illuminate\Http\Request;
 
 class TopicController extends Controller
 {
+    public function __construct(private MediaStorageService $mediaStorage)
+    {
+    }
+
     public function index()
     {
         /** @var User $user */
@@ -34,7 +38,7 @@ class TopicController extends Controller
 
         $file = $request->file('file');
         $filename = time() . '_' . $file->getClientOriginalName();
-        $path = $file->storeAs('topics', $filename, 'public');
+        $path = $this->mediaStorage->store($file, 'topics', $filename);
 
         Topic::create([
             'user_id' => auth()->id(),
@@ -55,7 +59,7 @@ class TopicController extends Controller
             abort(403);
         }
 
-        Storage::disk('public')->delete($topic->file_path);
+        $this->mediaStorage->delete($topic->file_path);
         $topic->delete();
 
         return back()->with('success', 'Topic deleted successfully.');

@@ -71,7 +71,7 @@
 
                     <div class="text-center mb-4">
                         @if($user->profile_picture)
-                            <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="Profile" class="rounded-circle mb-3" id="profilePreview" style="width: 150px; height: 150px; object-fit: cover;">
+                            <img src="{{ $user->profile_picture_url }}" alt="Profile" class="rounded-circle mb-3" id="profilePreview" style="width: 150px; height: 150px; object-fit: cover;">
                         @else
                             <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center text-white mb-3" id="profilePlaceholder" style="width: 150px; height: 150px; font-size: 48px;">
                                 {{ strtoupper(substr($user->name, 0, 1)) }}

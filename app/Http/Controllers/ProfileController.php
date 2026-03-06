@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\MediaStorageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
+    public function __construct(private MediaStorageService $mediaStorage)
+    {
+    }
+
     public function show()
     {
         $user = auth()->user();
@@ -38,11 +42,11 @@ class ProfileController extends Controller
 
         if ($request->hasFile('profile_picture')) {
             if ($user->profile_picture) {
-                Storage::disk('public')->delete($user->profile_picture);
+                $this->mediaStorage->delete($user->profile_picture);
             }
 
             $validated['profile_picture'] =
-                $request->file('profile_picture')->store('profiles', 'public');
+                $this->mediaStorage->store($request->file('profile_picture'), 'profiles');
         }
 
         if ($request->filled('password')) {

@@ -46,7 +46,7 @@
                         <a href="{{ route('teacher.topics.index') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> Back
                         </a>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" data-loading-text="Uploading Topic...">
                             <i class="fas fa-upload"></i> Upload Topic
                         </button>
                     </div>

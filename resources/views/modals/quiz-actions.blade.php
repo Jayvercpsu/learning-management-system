@@ -42,7 +42,7 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-edit"></i> Review Answers
                 </button>
-                <button type="submit" class="btn btn-success" onclick="document.getElementById('quizForm').submit();">
+                <button type="button" class="btn btn-success" data-submit-form="quizForm" data-loading-text="Submitting Quiz...">
                     <i class="fas fa-check"></i> Submit Now
                 </button>
             </div>

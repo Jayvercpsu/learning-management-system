@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\MediaStorageService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -32,5 +33,23 @@ class Video extends Model
         $minutes = floor($this->duration / 60);
         $seconds = $this->duration % 60;
         return sprintf('%02d:%02d', $minutes, $seconds);
+    }
+
+    public function getVideoUrlAttribute(): ?string
+    {
+        if (! $this->video_path) {
+            return null;
+        }
+
+        return app(MediaStorageService::class)->url($this->video_path);
+    }
+
+    public function getThumbnailUrlAttribute(): ?string
+    {
+        if (! $this->thumbnail) {
+            return null;
+        }
+
+        return app(MediaStorageService::class)->url($this->thumbnail);
     }
 }

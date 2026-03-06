@@ -70,7 +70,7 @@
                 <div class="card-body">
                     <div class="text-center mb-4">
                         @if($user->profile_picture)
-                            <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="Profile" class="rounded-circle"
+                            <img src="{{ $user->profile_picture_url }}" alt="Profile" class="rounded-circle"
                                 style="width: 150px; height: 150px; object-fit: cover;">
                         @else
                             <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center text-white"

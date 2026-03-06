@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\Quiz;
-use App\Models\QuizQuestion;
-use App\Models\QuizAttempt;
 use App\Models\QuizAnswer;
-use Illuminate\Support\Facades\Storage;
+use App\Models\QuizAttempt;
+use App\Models\QuizQuestion;
+use App\Models\User;
+use App\Services\MediaStorageService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 
 class QuizController extends Controller
 {
+    public function __construct(private MediaStorageService $mediaStorage)
+    {
+    }
+
     public function index()
     {
         /** @var User $user */
@@ -59,7 +63,7 @@ class QuizController extends Controller
             $imagePath = null;
             if (isset($request->questions[$index]['image'])) {
                 $image = $request->file("questions.$index.image");
-                $imagePath = $image->store('quiz_attachments', 'public');
+                $imagePath = $this->mediaStorage->store($image, 'quiz_attachments');
             }
 
             QuizQuestion::create([
@@ -112,7 +116,7 @@ class QuizController extends Controller
 
         foreach ($quiz->questions as $question) {
             if ($question->image) {
-                Storage::disk('public')->delete($question->image);
+                $this->mediaStorage->delete($question->image);
             }
         }
 

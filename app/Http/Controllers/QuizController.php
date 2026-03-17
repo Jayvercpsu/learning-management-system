@@ -7,13 +7,17 @@ use App\Models\QuizAnswer;
 use App\Models\QuizAttempt;
 use App\Models\QuizQuestion;
 use App\Models\User;
+use App\Services\ActivityNotificationService;
 use App\Services\MediaStorageService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class QuizController extends Controller
 {
-    public function __construct(private MediaStorageService $mediaStorage)
+    public function __construct(
+        private MediaStorageService $mediaStorage,
+        private ActivityNotificationService $activityNotifications
+    )
     {
     }
 
@@ -77,6 +81,27 @@ class QuizController extends Controller
             ]);
         }
 
+        /** @var User $teacher */
+        $teacher = auth()->user();
+        $quizTitle = (string) ($quiz->title ?: 'Untitled Quiz');
+
+        $this->activityNotifications->notifyUser(
+            $teacher,
+            'Quiz Created',
+            'You created a new quiz: "' . $quizTitle . '".',
+            route('teacher.quizzes.index'),
+            'Open Quizzes'
+        );
+
+        $students = User::query()->where('role', 'student')->get();
+        $this->activityNotifications->notifyUsers(
+            $students,
+            'New Quiz Available',
+            $teacher->name . ' published "' . $quizTitle . '".',
+            route('student.quizzes'),
+            'Take Quiz'
+        );
+
         return redirect()->route('teacher.quizzes.index')->with('success', 'Quiz created successfully.');
     }
 
@@ -105,6 +130,17 @@ class QuizController extends Controller
 
         $quiz->update($validated);
 
+        /** @var User $teacher */
+        $teacher = auth()->user();
+        $quizTitle = (string) ($quiz->title ?: 'Untitled Quiz');
+        $this->activityNotifications->notifyUser(
+            $teacher,
+            'Quiz Updated',
+            'You updated quiz "' . $quizTitle . '".',
+            route('teacher.quizzes.index'),
+            'Open Quizzes'
+        );
+
         return redirect()->route('teacher.quizzes.index')->with('success', 'Quiz updated successfully.');
     }
 
@@ -120,7 +156,19 @@ class QuizController extends Controller
             }
         }
 
+        $quizTitle = (string) ($quiz->title ?: 'Untitled Quiz');
         $quiz->delete();
+
+        /** @var User $teacher */
+        $teacher = auth()->user();
+        $this->activityNotifications->notifyUser(
+            $teacher,
+            'Quiz Deleted',
+            'You deleted quiz "' . $quizTitle . '".',
+            route('teacher.quizzes.index'),
+            'Open Quizzes'
+        );
+
         return back()->with('success', 'Quiz deleted successfully.');
     }
 
@@ -177,6 +225,17 @@ class QuizController extends Controller
         $attempt->is_checked = true;
         $attempt->save();
         $attempt->calculateScore();
+
+        $student = $attempt->user;
+        if ($student instanceof User) {
+            $this->activityNotifications->notifyUser(
+                $student,
+                'Quiz Checked',
+                'Your quiz "' . ($quiz->title ?: 'Quiz') . '" has been checked.',
+                route('student.quizzes.result', $attempt),
+                'View Result'
+            );
+        }
 
         return back()->with('success', 'Quiz graded successfully.');
     }
@@ -242,6 +301,33 @@ class QuizController extends Controller
         
         $attempt->save();
         $attempt->calculateScore();
+
+        /** @var User $student */
+        $student = auth()->user();
+        $quizTitle = (string) ($quiz->title ?: 'Untitled Quiz');
+
+        $this->activityNotifications->notifyUser(
+            $student,
+            'Quiz Submitted',
+            'You submitted "' . $quizTitle . '".',
+            route('student.quizzes.result', $attempt),
+            'View Result'
+        );
+
+        $teacher = $quiz->user;
+        if ($teacher instanceof User && $teacher->id !== $student->id) {
+            $teacherMessage = $quiz->auto_check
+                ? $student->name . ' submitted "' . $quizTitle . '". It was auto-checked.'
+                : $student->name . ' submitted "' . $quizTitle . '". Manual checking is needed.';
+
+            $this->activityNotifications->notifyUser(
+                $teacher,
+                'Quiz Submission Received',
+                $teacherMessage,
+                route('teacher.quizzes.results', $quiz),
+                'View Submissions'
+            );
+        }
 
         return redirect()->route('student.quizzes.result', $attempt)->with('success', 'Quiz submitted successfully.');
     }

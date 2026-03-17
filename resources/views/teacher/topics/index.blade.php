@@ -50,8 +50,18 @@
                     </div>
                     
                     <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-sm btn-outline-primary flex-fill view-topic-btn" data-topic-id="{{ $topic->id }}" data-topic-title="{{ $topic->title }}" data-topic-url="{{ $topic->file_url }}" data-topic-type="{{ $topic->file_type }}">
-                            <i class="fas fa-eye"></i> View
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-primary flex-fill view-topic-btn"
+                            data-topic-id="{{ $topic->id }}"
+                            data-topic-title="{{ $topic->title }}"
+                            data-topic-url="{{ $topic->file_url }}"
+                            data-topic-type="{{ $topic->file_type }}"
+                            data-topic-is-office="{{ $topic->is_office_file ? '1' : '0' }}"
+                            data-topic-preview-url="{{ $topic->office_preview_url }}"
+                            data-topic-preview-fallback-url="{{ $topic->office_preview_fallback_url }}"
+                        >
+                            <i class="fas fa-eye"></i> {{ $topic->is_office_file ? 'View File' : 'View' }}
                         </button>
                         <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $topic->id }}">
                             <i class="fas fa-trash"></i> Delete
@@ -134,22 +144,113 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = new bootstrap.Modal(document.getElementById('viewTopicModal'));
     const fileViewer = document.getElementById('fileViewer');
     const modalTitle = document.getElementById('modalTopicTitle');
+
+    function toSafeHttpUrl(rawUrl) {
+        if (!rawUrl) {
+            return null;
+        }
+
+        try {
+            const parsed = new URL(rawUrl, window.location.origin);
+            if (!['http:', 'https:'].includes(parsed.protocol)) {
+                return null;
+            }
+
+            return parsed.toString();
+        } catch (error) {
+            return null;
+        }
+    }
+
+    function normalizeLocalStorageOrigin(rawUrl) {
+        const safeUrl = toSafeHttpUrl(rawUrl);
+        if (!safeUrl) {
+            return null;
+        }
+
+        try {
+            const parsed = new URL(safeUrl);
+            const current = new URL(window.location.href);
+            const isStoragePath = parsed.pathname.startsWith('/storage/');
+            const localHosts = ['localhost', '127.0.0.1', '::1'];
+            const isParsedLocal = localHosts.includes(parsed.hostname);
+            const isCurrentLocal = localHosts.includes(current.hostname);
+
+            if (isStoragePath && isParsedLocal && isCurrentLocal) {
+                return `${current.origin}${parsed.pathname}${parsed.search}${parsed.hash}`;
+            }
+
+            return parsed.toString();
+        } catch (error) {
+            return safeUrl;
+        }
+    }
+
+    function renderOfficePreview(primaryViewerUrl, fallbackViewerUrl, sourceFileUrl) {
+        const safePrimaryViewerUrl = toSafeHttpUrl(primaryViewerUrl);
+        const safeFallbackViewerUrl = toSafeHttpUrl(fallbackViewerUrl);
+        const safeSourceFileUrl = toSafeHttpUrl(sourceFileUrl);
+
+        if (!safePrimaryViewerUrl) {
+            fileViewer.innerHTML = `
+                <div class="alert alert-warning m-4">
+                    <div class="mb-2"><i class="fas fa-exclamation-triangle me-2"></i>Preview is not available for this file URL.</div>
+                    ${safeSourceFileUrl ? `
+                        <a href="${safeSourceFileUrl}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+                            <i class="fas fa-download me-1"></i>Download / Open File
+                        </a>
+                    ` : ''}
+                </div>
+            `;
+            return;
+        }
+
+        fileViewer.innerHTML = `
+            <div class="w-100 h-100 d-flex flex-column">
+                <div class="border-bottom p-2 d-flex gap-2 justify-content-end">
+                    ${safeFallbackViewerUrl ? '<button type="button" class="btn btn-outline-secondary btn-sm" id="useGoogleViewerBtn"><i class="fas fa-exchange-alt me-1"></i>Try Google Viewer</button>' : ''}
+                    ${safeSourceFileUrl ? `<a href="${safeSourceFileUrl}" target="_blank" rel="noopener" class="btn btn-primary btn-sm"><i class="fas fa-external-link-alt me-1"></i>Open File</a>` : ''}
+                </div>
+                <iframe id="officePreviewFrame" src="${safePrimaryViewerUrl}" class="w-100 flex-grow-1" style="border: none;"></iframe>
+            </div>
+        `;
+
+        const frame = document.getElementById('officePreviewFrame');
+        const googleBtn = document.getElementById('useGoogleViewerBtn');
+        if (frame && googleBtn && safeFallbackViewerUrl) {
+            googleBtn.addEventListener('click', function () {
+                frame.src = safeFallbackViewerUrl;
+                googleBtn.disabled = true;
+                googleBtn.innerHTML = '<i class="fas fa-check me-1"></i>Using Google Viewer';
+            });
+        }
+    }
     
     
     viewButtons.forEach(button => {
         button.addEventListener('click', function() {
             const topicTitle = this.getAttribute('data-topic-title');
-            const topicUrl = this.getAttribute('data-topic-url');
+            const topicUrlRaw = this.getAttribute('data-topic-url');
+            const topicUrl = normalizeLocalStorageOrigin(topicUrlRaw);
             const topicType = (this.getAttribute('data-topic-type') || '').toLowerCase();
-            
+            const isOfficeFile = this.getAttribute('data-topic-is-office') === '1';
+            const officePreviewUrl = this.getAttribute('data-topic-preview-url');
+            const officePreviewFallbackUrl = this.getAttribute('data-topic-preview-fallback-url');
+
             modalTitle.textContent = topicTitle;
-            
-            
+
+
             fileViewer.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
-            
+
             modal.show();
-            
+
             setTimeout(() => {
+                if (!topicUrl) {
+                    console.warn('[TopicPreview] Invalid topic URL', { topicTitle, topicUrlRaw, topicType });
+                    fileViewer.innerHTML = '<div class="alert alert-warning m-4">Invalid file URL. Please re-upload this file.</div>';
+                    return;
+                }
+
                 if (topicType === 'pdf') {
                     fileViewer.innerHTML = `
                         <object data="${topicUrl}" type="application/pdf" class="w-100 h-100">
@@ -162,8 +263,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </object>
                     `;
-                } else if (['doc', 'docx'].includes(topicType)) {
-                    fileViewer.innerHTML = `<iframe src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(topicUrl)}" class="w-100 h-100" style="border: none;"></iframe>`;
+                } else if (isOfficeFile) {
+                    renderOfficePreview(officePreviewUrl, officePreviewFallbackUrl, topicUrl);
                 } else if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(topicType)) {
                     fileViewer.innerHTML = `<img src="${topicUrl}" class="img-fluid" alt="${topicTitle}" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
                 } else if (['txt', 'md'].includes(topicType)) {

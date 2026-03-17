@@ -71,7 +71,9 @@
             background: var(--sidebar-bg);
             border-right: 1px solid var(--border-color);
             z-index: 1040;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
             transition: transform 0.28s ease;
         }
 
@@ -102,6 +104,24 @@
 
         .sidebar .nav {
             padding: 0.65rem 0.65rem 1rem;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-footer {
+            padding: 0.85rem;
+            border-top: 1px solid var(--border-color);
+            background: var(--surface);
+        }
+
+        .sidebar-logout-btn {
+            width: 100%;
+            border-radius: 10px;
+            font-weight: 600;
         }
 
         .sidebar .nav-link {
@@ -324,6 +344,7 @@
 
         .notification-menu {
             width: min(92vw, 390px);
+            max-width: min(92vw, 390px);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 0;
@@ -335,11 +356,15 @@
             border-bottom: 1px solid var(--border-color);
             padding: 0.7rem 0.85rem;
             background: var(--surface-soft);
+            position: sticky;
+            top: 0;
+            z-index: 1;
         }
 
         .notification-list {
-            max-height: 360px;
+            max-height: min(62vh, 420px);
             overflow-y: auto;
+            overscroll-behavior: contain;
         }
 
         .notification-item {
@@ -367,6 +392,8 @@
             font-size: 0.84rem;
             margin-bottom: 0.55rem;
             line-height: 1.35;
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }
 
         .notification-time {
@@ -375,9 +402,44 @@
         }
 
         .notification-actions {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 0.4rem;
             margin-top: 0.55rem;
+        }
+
+        .notification-actions form {
+            margin: 0;
+        }
+
+        .notification-actions .btn {
+            width: 100%;
+            white-space: nowrap;
+        }
+
+        .notification-modal .modal-content {
+            border: 1px solid var(--border-color);
+            background: var(--surface);
+            color: var(--text-main);
+        }
+
+        .notification-modal .modal-header {
+            border-bottom: 1px solid var(--border-color);
+            background: var(--surface-soft);
+        }
+
+        .notification-modal .modal-footer {
+            border-top: 1px solid var(--border-color);
+            background: var(--surface);
+        }
+
+        .notification-modal .modal-body {
+            padding: 0;
+            background: var(--surface);
+        }
+
+        .notification-modal .notification-list {
+            max-height: min(68vh, 540px);
         }
 
         .btn-outline-secondary {
@@ -510,16 +572,47 @@
             }
         }
 
-        .sidebar::-webkit-scrollbar {
+        @media (max-width: 991.98px) {
+            .nav-toolbar {
+                gap: 0.4rem;
+            }
+
+            .notification-menu {
+                width: calc(100vw - 1rem);
+                max-width: calc(100vw - 1rem);
+                right: 0.5rem !important;
+                left: auto !important;
+                transform: none !important;
+                border-radius: 10px;
+            }
+
+            .notification-list {
+                max-height: min(65vh, 520px);
+            }
+
+            .notification-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .notification-actions .btn {
+                white-space: normal;
+            }
+
+            .notification-dropdown-wrapper .notification-menu {
+                display: none !important;
+            }
+        }
+
+        .sidebar-nav::-webkit-scrollbar {
             width: 7px;
         }
 
-        .sidebar::-webkit-scrollbar-thumb {
+        .sidebar-nav::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 8px;
         }
 
-        .sidebar::-webkit-scrollbar-thumb:hover {
+        .sidebar-nav::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
     </style>
@@ -538,7 +631,17 @@
                 <small class="text-uppercase text-muted fw-semibold d-block">{{ auth()->user()->role }}</small>
                 <span class="fw-semibold">{{ auth()->user()->name }}</span>
             </div>
-            @yield('sidebar')
+            <div class="sidebar-nav">
+                @yield('sidebar')
+            </div>
+            <div class="sidebar-footer d-lg-none">
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-danger sidebar-logout-btn">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </button>
+                </form>
+            </div>
         </aside>
 
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -562,7 +665,7 @@
                             <i class="fas fa-moon me-1"></i><span class="d-none d-sm-inline">Dark</span>
                         </button>
 
-                        <div class="dropdown">
+                        <div class="dropdown notification-dropdown-wrapper">
                             <button class="btn btn-outline-secondary btn-sm position-relative" id="notificationDropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-bell"></i>
                                 @if($unreadNotificationsCount > 0)
@@ -633,6 +736,61 @@
                 </div>
             </nav>
 
+            <div class="modal fade notification-modal" id="mobileNotificationsModal" tabindex="-1" aria-labelledby="mobileNotificationsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-lg-down">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="mobileNotificationsModalLabel">
+                                <i class="fas fa-bell me-2"></i>Notifications
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="notification-header d-flex justify-content-between align-items-center">
+                                <span class="fw-semibold">Recent</span>
+                                @if($unreadNotificationsCount > 0)
+                                    <form action="{{ route('notifications.readAll') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="btn btn-link btn-sm p-0 text-decoration-none">Mark all as read</button>
+                                    </form>
+                                @endif
+                            </div>
+                            <div class="notification-list">
+                                @forelse($latestNotifications as $notification)
+                                    @php
+                                        $data = $notification->data;
+                                        $title = $data['title'] ?? 'Notification';
+                                        $message = $data['message'] ?? '';
+                                        $openLabel = $data['action_label'] ?? 'Open';
+                                    @endphp
+                                    <div class="notification-item {{ $notification->read_at === null ? 'unread' : '' }}">
+                                        <div class="notification-title">{{ $title }}</div>
+                                        <div class="notification-body">{{ $message }}</div>
+                                        <div class="notification-time">{{ $notification->created_at->diffForHumans() }}</div>
+                                        <div class="notification-actions">
+                                            <a href="{{ route('notifications.open', $notification->id) }}" class="btn btn-primary btn-sm">{{ $openLabel }}</a>
+                                            @if($notification->read_at === null)
+                                                <form action="{{ route('notifications.read', $notification->id) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-outline-secondary btn-sm">Mark as Read</button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="notification-item">
+                                        <p class="text-muted mb-0 small">No notifications yet.</p>
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="content-wrap page-animate">
                 @if(session('success'))
                     <div class="alert alert-success alert-dismissible fade show">
@@ -644,6 +802,20 @@
                 @if(session('error'))
                     <div class="alert alert-danger alert-dismissible fade show">
                         {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                @if(session('info'))
+                    <div class="alert alert-info alert-dismissible fade show">
+                        {{ session('info') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                @if(session('warning'))
+                    <div class="alert alert-warning alert-dismissible fade show">
+                        {{ session('warning') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 @endif
@@ -775,6 +947,44 @@
             themeToggle.addEventListener('click', function () {
                 const nextTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
                 applyTheme(nextTheme);
+            });
+        })();
+
+        (function () {
+            const notificationTrigger = document.getElementById('notificationDropdown');
+            const mobileModalElement = document.getElementById('mobileNotificationsModal');
+            const mobileQuery = window.matchMedia('(max-width: 991.98px)');
+
+            if (!notificationTrigger || !mobileModalElement || typeof bootstrap === 'undefined') {
+                return;
+            }
+
+            const mobileNotificationsModal = new bootstrap.Modal(mobileModalElement);
+
+            notificationTrigger.addEventListener('click', function (event) {
+                if (!mobileQuery.matches) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (typeof bootstrap.Dropdown !== 'undefined') {
+                    const dropdownInstance = bootstrap.Dropdown.getOrCreateInstance(notificationTrigger);
+                    dropdownInstance.hide();
+                }
+
+                const sidebar = document.getElementById('sidebar');
+                const sidebarOverlay = document.getElementById('sidebarOverlay');
+                if (sidebar) {
+                    sidebar.classList.remove('mobile-open');
+                }
+                if (sidebarOverlay) {
+                    sidebarOverlay.classList.remove('active');
+                }
+                document.body.classList.remove('overflow-hidden');
+
+                mobileNotificationsModal.show();
             });
         })();
 

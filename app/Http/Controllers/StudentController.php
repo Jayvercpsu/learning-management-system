@@ -6,14 +6,20 @@ use App\Models\Topic;
 use App\Models\Video;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
+use App\Models\User;
+use App\Services\ActivityNotificationService;
 use App\Services\MediaStorageService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 
 class StudentController extends Controller
 {
-    public function __construct(private MediaStorageService $mediaStorage)
+    public function __construct(
+        private MediaStorageService $mediaStorage,
+        private ActivityNotificationService $activityNotifications
+    )
     {
     }
 
@@ -37,7 +43,17 @@ class StudentController extends Controller
     public function topics()
     {
         $topics = Topic::with('user')->latest()->paginate(12);
+        $this->attachOfficePreviewMetadata($topics);
         return view('student.topics', compact('topics'));
+    }
+
+    public function markTopicViewed(Topic $topic)
+    {
+        $this->notifyTopicInteraction($topic, 'viewed');
+
+        return response()->json([
+            'success' => true,
+        ]);
     }
 
     public function downloadTopic(Topic $topic)
@@ -48,6 +64,8 @@ class StudentController extends Controller
                 abort(404);
             }
 
+            $this->notifyTopicInteraction($topic, 'downloaded');
+
             return redirect()->away($this->cloudinaryAttachmentUrl($remoteUrl));
         }
 
@@ -55,6 +73,8 @@ class StudentController extends Controller
         if (!$path || !file_exists($path)) {
             abort(404);
         }
+
+        $this->notifyTopicInteraction($topic, 'downloaded');
 
         return response()->download($path, $this->topicDownloadFilename($topic));
     }
@@ -166,5 +186,54 @@ class StudentController extends Controller
         $query = isset($parts['query']) ? '?' . $parts['query'] : '';
 
         return $scheme . '://' . $host . $port . '/' . implode('/', $segments) . $query;
+    }
+
+    private function attachOfficePreviewMetadata(LengthAwarePaginator $topics): void
+    {
+        $topics->setCollection(
+            $topics->getCollection()->map(function (Topic $topic): Topic {
+                $isOfficeFile = $this->isOfficeExtension((string) $topic->file_type);
+
+                $topic->setAttribute('is_office_file', $isOfficeFile);
+                $topic->setAttribute('office_preview_url', $isOfficeFile ? $topic->office_preview_url : null);
+                $topic->setAttribute('office_preview_fallback_url', $isOfficeFile ? $topic->office_preview_fallback_url : null);
+
+                return $topic;
+            })
+        );
+    }
+
+    private function isOfficeExtension(string $extension): bool
+    {
+        return in_array(strtolower($extension), Topic::officeExtensions(), true);
+    }
+
+    private function notifyTopicInteraction(Topic $topic, string $action): void
+    {
+        /** @var User $student */
+        $student = auth()->user();
+        $topicTitle = (string) ($topic->title ?: 'Untitled Topic');
+        $actionPast = strtolower(trim($action));
+
+        $this->activityNotifications->notifyUser(
+            $student,
+            'Topic ' . ucfirst($actionPast),
+            'You ' . $actionPast . ' "' . $topicTitle . '".',
+            route('student.topics'),
+            'Open Topics'
+        );
+
+        $teacher = $topic->user()->first();
+        if (! $teacher instanceof User || $teacher->id === $student->id) {
+            return;
+        }
+
+        $this->activityNotifications->notifyUser(
+            $teacher,
+            'Topic ' . ucfirst($actionPast) . ' by Student',
+            $student->name . ' ' . $actionPast . ' your topic "' . $topicTitle . '".',
+            route('teacher.topics.index'),
+            'Open Topics'
+        );
     }
 }

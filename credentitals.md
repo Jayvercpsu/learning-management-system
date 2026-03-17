@@ -73,14 +73,3 @@
 - Teacher approval system
 
 
-heroku config:set APP_ENV=production --app learning-management-system
-heroku config:set DB_CONNECTION=mysql --app learning-management-system
-heroku config:set DB_HOST=tuy8t6uuvh43khkk.cbetxkdyhwsb.us-east-1.rds.amazonaws.com --app learning-management-system
-heroku config:set DB_PORT=3306 --app learning-management-system
-heroku config:set DB_DATABASE=z5ed5j3ltbloh6k0 --app learning-management-system
-heroku config:set DB_USERNAME=a0mkkyixhg0yc4m1 --app learning-management-system
-heroku config:set DB_PASSWORD=iql0j887ao3agqaq --app learning-management-system
-
-
-
-heroku run mysql -u a0mkkyixhg0yc4m1 -p iql0j887ao3agqaq -h tuy8t6uuvh43khkk.cbetxkdyhwsb.us-east-1.rds.amazonaws.com z5ed5j3ltbloh6k0

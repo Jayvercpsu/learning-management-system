@@ -70,6 +70,7 @@ Route::middleware(['auth', 'student'])->prefix('student')->name('student.')->gro
     Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
     
     Route::get('/topics', [StudentController::class, 'topics'])->name('topics');
+    Route::post('/topics/{topic}/viewed', [StudentController::class, 'markTopicViewed'])->name('topics.viewed');
     Route::get('/topics/{topic}/download', [StudentController::class, 'downloadTopic'])->name('topics.download');
     
     Route::get('/videos', [StudentController::class, 'videos'])->name('videos');

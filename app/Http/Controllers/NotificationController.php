@@ -62,9 +62,24 @@ class NotificationController extends Controller
             return true;
         }
 
-        $appHost = parse_url((string) config('app.url'), PHP_URL_HOST);
-        $targetHost = parse_url($url, PHP_URL_HOST);
+        $targetHost = Str::lower((string) parse_url($url, PHP_URL_HOST));
+        if ($targetHost === '') {
+            return false;
+        }
 
-        return $appHost && $targetHost && Str::lower($appHost) === Str::lower($targetHost);
+        $allowedHosts = array_filter([
+            Str::lower((string) parse_url((string) config('app.url'), PHP_URL_HOST)),
+            request()->getHost() ? Str::lower((string) request()->getHost()) : null,
+        ]);
+
+        if (in_array($targetHost, $allowedHosts, true)) {
+            return true;
+        }
+
+        $localAliases = ['localhost', '127.0.0.1', '::1'];
+        $targetIsLocal = in_array($targetHost, $localAliases, true);
+        $allowedHasLocal = count(array_intersect($allowedHosts, $localAliases)) > 0;
+
+        return $targetIsLocal && $allowedHasLocal;
     }
 }

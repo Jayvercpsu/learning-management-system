@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Services\Cloudinary\CustomUploadApi;
 use Cloudinary\Cloudinary;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -45,10 +46,16 @@ class MediaStorageService
         }
 
         if ($this->isRemotePath((string) $storedValue)) {
-            return (string) $storedValue;
+            return $this->normalizeLocalStorageUrl((string) $storedValue);
         }
 
-        return Storage::disk($this->localDisk())->url((string) $storedValue);
+        $url = Storage::disk($this->localDisk())->url((string) $storedValue);
+        $requestBasedUrl = $this->localStorageUrlFromCurrentRequest($url);
+        if ($requestBasedUrl !== null) {
+            return $requestBasedUrl;
+        }
+
+        return $this->normalizeLocalStorageUrl($url);
     }
 
     public function isRemotePath(?string $storedValue): bool
@@ -102,9 +109,36 @@ class MediaStorageService
             $uploadOptions['use_filename'] = true;
         }
 
+        $fileSize = (int) ($file->getSize() ?? 0);
+        $chunkSizeBytes = (int) config('media.cloudinary.chunk_size_bytes', 6291456);
+        if ($fileSize > 10 * 1024 * 1024 && $chunkSizeBytes > 0) {
+            // Force smaller multipart chunks for large uploads to avoid provider-side per-request limits.
+            $uploadOptions['chunk_size'] = $chunkSizeBytes;
+        }
+
+        Log::info('Cloudinary upload start', [
+            'folder' => $folder,
+            'resource_type' => $resourceType,
+            'original_name' => $file->getClientOriginalName(),
+            'target_filename' => $filename,
+            'size_bytes' => $fileSize,
+            'chunk_size' => $uploadOptions['chunk_size'] ?? null,
+            'client_mime' => $file->getClientMimeType(),
+            'detected_mime' => $file->getMimeType(),
+        ]);
+
         try {
             $result = $this->uploadApi()->upload($file->getRealPath(), $uploadOptions);
         } catch (Throwable $e) {
+            Log::error('Cloudinary upload failed', [
+                'folder' => $folder,
+                'resource_type' => $resourceType,
+                'original_name' => $file->getClientOriginalName(),
+                'target_filename' => $filename,
+                'size_bytes' => $file->getSize(),
+                'message' => $e->getMessage(),
+            ]);
+
             if (str_contains($e->getMessage(), 'cURL error 60')) {
                 throw new RuntimeException(
                     'Cloudinary SSL verification failed. For local WAMP only, set CLOUDINARY_VERIFY_SSL=false or set CLOUDINARY_CA_BUNDLE to a valid CA bundle path.'
@@ -118,6 +152,13 @@ class MediaStorageService
         if ($secureUrl === '') {
             throw new RuntimeException('Cloudinary upload failed: missing uploaded file URL.');
         }
+
+        Log::info('Cloudinary upload success', [
+            'folder' => $folder,
+            'resource_type' => $resourceType,
+            'original_name' => $file->getClientOriginalName(),
+            'secure_url' => $secureUrl,
+        ]);
 
         return $secureUrl;
     }
@@ -351,5 +392,81 @@ class MediaStorageService
         }
 
         return 'raw';
+    }
+
+    private function normalizeLocalStorageUrl(string $url): string
+    {
+        if (! $this->isRemotePath($url)) {
+            return $url;
+        }
+
+        $parts = parse_url($url);
+        if (! is_array($parts)) {
+            return $url;
+        }
+
+        $path = (string) ($parts['path'] ?? '');
+        if ($path === '' || ! Str::startsWith($path, '/storage')) {
+            return $url;
+        }
+
+        if (! app()->bound('request')) {
+            return $url;
+        }
+
+        $request = request();
+        if (! $request) {
+            return $url;
+        }
+
+        $urlHost = strtolower((string) ($parts['host'] ?? ''));
+        $requestHost = strtolower((string) $request->getHost());
+        if ($urlHost === '' || $requestHost === '') {
+            return $url;
+        }
+
+        $urlScheme = strtolower((string) ($parts['scheme'] ?? 'http'));
+        $urlPort = (int) ($parts['port'] ?? ($urlScheme === 'https' ? 443 : 80));
+        $requestPort = (int) $request->getPort();
+
+        $isUrlHostLocal = in_array($urlHost, ['localhost', '127.0.0.1', '::1'], true);
+        $hostMismatch = $urlHost !== $requestHost;
+        $portMismatch = $urlPort !== 0 && $requestPort !== 0 && $urlPort !== $requestPort;
+
+        if (! $isUrlHostLocal || (! $hostMismatch && ! $portMismatch)) {
+            return $url;
+        }
+
+        $query = isset($parts['query']) ? ('?' . $parts['query']) : '';
+        $fragment = isset($parts['fragment']) ? ('#' . $parts['fragment']) : '';
+
+        return rtrim($request->getSchemeAndHttpHost(), '/') . $path . $query . $fragment;
+    }
+
+    private function localStorageUrlFromCurrentRequest(string $url): ?string
+    {
+        if (! app()->bound('request')) {
+            return null;
+        }
+
+        $request = request();
+        if (! $request) {
+            return null;
+        }
+
+        $parts = parse_url($url);
+        if (! is_array($parts)) {
+            return null;
+        }
+
+        $path = (string) ($parts['path'] ?? '');
+        if ($path === '' || ! Str::startsWith($path, '/storage')) {
+            return null;
+        }
+
+        $query = isset($parts['query']) ? ('?' . $parts['query']) : '';
+        $fragment = isset($parts['fragment']) ? ('#' . $parts['fragment']) : '';
+
+        return rtrim($request->getSchemeAndHttpHost(), '/') . $path . $query . $fragment;
     }
 }

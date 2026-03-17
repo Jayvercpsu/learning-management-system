@@ -7,6 +7,14 @@
 @endsection
 
 @section('content')
+@php
+    $videoExtensions = array_values(array_unique(array_map(
+        static fn (string $extension): string => strtolower(ltrim($extension, '.')),
+        (array) config('media.video_upload.extensions', ['mp4', 'mov', 'avi', 'wmv'])
+    )));
+    $videoAccept = implode(',', array_map(static fn (string $extension): string => '.' . $extension, $videoExtensions));
+    $videoMaxMb = (int) ceil(((int) config('media.video_upload.max_kb', 512000)) / 1024);
+@endphp
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="card">
@@ -35,8 +43,8 @@
 
                     <div class="mb-3">
                         <label class="form-label">Upload Video</label>
-                        <input type="file" name="video" id="videoFile" class="form-control @error('video') is-invalid @enderror" accept=".mp4,.mov,.avi,.wmv" required>
-                        <small class="text-muted">Supported: MP4, MOV, AVI, WMV (Max: 500MB)</small>
+                        <input type="file" name="video" id="videoFile" class="form-control @error('video') is-invalid @enderror" accept="{{ $videoAccept }}" required>
+                        <small class="text-muted">Supported: MP4, MOV, AVI, WMV (Max: {{ $videoMaxMb }}MB)</small>
                         @error('video')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -100,6 +108,7 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const maxVideoSizeMB = {{ $videoMaxMb }};
     const form = document.getElementById('videoUploadForm');
     const fileInput = document.getElementById('videoFile');
     const uploadBtn = document.getElementById('uploadBtn');
@@ -122,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const file = e.target.files[0];
         if (file) {
             const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
-            const maxSize = 500;
+            const maxSize = maxVideoSizeMB;
             
             fileName.textContent = file.name;
             fileSize.textContent = fileSizeMB + ' MB';

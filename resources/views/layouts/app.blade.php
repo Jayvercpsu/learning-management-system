@@ -11,14 +11,39 @@
     <style>
         :root {
             --app-bg: #f3f5f9;
+            --app-bg-accent: #e9efff;
             --sidebar-bg: #ffffff;
             --surface: #ffffff;
+            --surface-soft: #f8fafc;
             --text-main: #1f2937;
             --text-muted: #6b7280;
             --border-color: #e5e7eb;
             --accent: #2563eb;
             --accent-hover: #1d4ed8;
+            --nav-hover: #eef2ff;
+            --nav-active: #e0e7ff;
+            --nav-active-text: #1e40af;
+            --shadow-soft: 0 6px 22px rgba(15, 23, 42, 0.05);
+            --shadow-hover: 0 12px 26px rgba(15, 23, 42, 0.08);
             --sidebar-width: 260px;
+        }
+
+        body.dark-mode {
+            --app-bg: #020617;
+            --app-bg-accent: #0f172a;
+            --sidebar-bg: #0b1220;
+            --surface: #0f172a;
+            --surface-soft: #111827;
+            --text-main: #e5e7eb;
+            --text-muted: #94a3b8;
+            --border-color: #1e293b;
+            --accent: #60a5fa;
+            --accent-hover: #3b82f6;
+            --nav-hover: #172032;
+            --nav-active: #1e3a8a3d;
+            --nav-active-text: #bfdbfe;
+            --shadow-soft: 0 8px 24px rgba(2, 6, 23, 0.35);
+            --shadow-hover: 0 12px 28px rgba(2, 6, 23, 0.45);
         }
 
         * {
@@ -28,8 +53,9 @@
         body {
             margin: 0;
             min-height: 100vh;
-            background: var(--app-bg);
+            background: linear-gradient(160deg, var(--app-bg) 0%, var(--app-bg-accent) 100%);
             color: var(--text-main);
+            transition: background-color 0.25s ease, color 0.25s ease;
         }
 
         .app-shell {
@@ -62,7 +88,7 @@
             font-size: 1.1rem;
             font-weight: 700;
             letter-spacing: 0.01em;
-            color: #111827;
+            color: var(--text-main);
         }
 
         .sidebar-brand i {
@@ -82,7 +108,7 @@
             display: flex;
             align-items: center;
             gap: 0.7rem;
-            color: #374151;
+            color: var(--text-main);
             border-radius: 10px;
             padding: 0.62rem 0.78rem;
             margin-bottom: 0.35rem;
@@ -93,23 +119,23 @@
         .sidebar .nav-link i {
             width: 18px;
             text-align: center;
-            color: #6b7280;
+            color: var(--text-muted);
         }
 
         .sidebar .nav-link:hover {
-            background: #eef2ff;
-            color: #111827;
+            background: var(--nav-hover);
+            color: var(--text-main);
             transform: translateX(2px);
         }
 
         .sidebar .nav-link.active {
-            background: #e0e7ff;
-            color: #1e40af;
+            background: var(--nav-active);
+            color: var(--nav-active-text);
             font-weight: 600;
         }
 
         .sidebar .nav-link.active i {
-            color: #1e40af;
+            color: var(--nav-active-text);
         }
 
         .main-content {
@@ -119,7 +145,8 @@
         }
 
         .top-nav {
-            background: rgba(255, 255, 255, 0.92);
+            background: var(--surface);
+            background: color-mix(in srgb, var(--surface) 92%, transparent);
             border-bottom: 1px solid var(--border-color);
             position: sticky;
             top: 0;
@@ -128,19 +155,23 @@
         }
 
         .content-wrap {
-            padding: 1.2rem;
+            padding: 1.25rem;
+            max-width: 1500px;
+            margin: 0 auto;
         }
 
         .card {
             border: 1px solid var(--border-color);
             border-radius: 14px;
-            box-shadow: 0 6px 22px rgba(15, 23, 42, 0.05);
+            box-shadow: var(--shadow-soft);
+            background: var(--surface);
+            color: var(--text-main);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+            box-shadow: var(--shadow-hover);
         }
 
         .btn-primary {
@@ -159,14 +190,14 @@
         }
 
         .table > :not(caption) > * > * {
-            border-color: #edf0f3;
+            border-color: var(--border-color);
         }
 
         .table > thead th {
             font-size: 0.88rem;
             letter-spacing: 0.02em;
             text-transform: uppercase;
-            color: #4b5563;
+            color: var(--text-muted);
             border-bottom-width: 1px;
             white-space: nowrap;
         }
@@ -192,10 +223,11 @@
         .pagination .page-link {
             border-radius: 9px;
             margin: 0 3px;
-            border-color: #d1d5db;
-            color: #374151;
+            border-color: var(--border-color);
+            color: var(--text-main);
             min-width: 36px;
             text-align: center;
+            background: var(--surface);
         }
 
         .pagination .page-item.active .page-link {
@@ -215,8 +247,9 @@
         .dataTables_wrapper .dataTables_filter input,
         .dataTables_wrapper .dataTables_length select {
             border-radius: 8px;
-            border: 1px solid #d1d5db;
-            background: #fff;
+            border: 1px solid var(--border-color);
+            background: var(--surface);
+            color: var(--text-main);
         }
 
         .dataTables_wrapper .dataTables_filter input {
@@ -230,7 +263,7 @@
         .dataTables_wrapper .dataTables_filter label,
         .dataTables_wrapper .dataTables_length label,
         .dataTables_wrapper .dataTables_info {
-            color: #4b5563;
+            color: var(--text-muted);
             font-size: 0.92rem;
         }
 
@@ -248,12 +281,12 @@
         }
 
         .dataTables_wrapper table.dataTable thead th {
-            background: #f8fafc;
-            border-bottom: 1px solid #e5e7eb !important;
+            background: var(--surface-soft);
+            border-bottom: 1px solid var(--border-color) !important;
         }
 
         .dataTables_wrapper table.dataTable.no-footer {
-            border-bottom: 1px solid #e5e7eb !important;
+            border-bottom: 1px solid var(--border-color) !important;
         }
 
         .dataTables_wrapper .dataTables_paginate .pagination {
@@ -277,6 +310,162 @@
 
         .page-animate {
             animation: pageEnter 0.35s ease-out;
+        }
+
+        .nav-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .theme-toggle {
+            min-width: 94px;
+        }
+
+        .notification-menu {
+            width: min(92vw, 390px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0;
+            overflow: hidden;
+            background: var(--surface);
+        }
+
+        .notification-header {
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.7rem 0.85rem;
+            background: var(--surface-soft);
+        }
+
+        .notification-list {
+            max-height: 360px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 0.75rem 0.85rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .notification-item:last-child {
+            border-bottom: 0;
+        }
+
+        .notification-item.unread {
+            background: var(--surface-soft);
+            background: color-mix(in srgb, var(--accent) 11%, var(--surface));
+        }
+
+        .notification-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .notification-body {
+            color: var(--text-muted);
+            font-size: 0.84rem;
+            margin-bottom: 0.55rem;
+            line-height: 1.35;
+        }
+
+        .notification-time {
+            color: var(--text-muted);
+            font-size: 0.76rem;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 0.4rem;
+            margin-top: 0.55rem;
+        }
+
+        .btn-outline-secondary {
+            border-color: var(--border-color);
+            color: var(--text-main);
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--nav-hover);
+            color: var(--text-main);
+            border-color: var(--accent);
+        }
+
+        .dropdown-menu {
+            border-color: var(--border-color);
+            background: var(--surface);
+        }
+
+        .dropdown-item {
+            color: var(--text-main);
+        }
+
+        .dropdown-item:hover,
+        .dropdown-item:focus {
+            background: var(--nav-hover);
+            color: var(--text-main);
+        }
+
+        .dropdown-divider {
+            border-top-color: var(--border-color);
+        }
+
+        .form-control,
+        .form-select {
+            background: var(--surface);
+            color: var(--text-main);
+            border-color: var(--border-color);
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.2);
+            box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--accent) 22%, transparent);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-muted);
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        .card-header,
+        .card-footer,
+        .list-group-item {
+            background: var(--surface);
+            border-color: var(--border-color);
+            color: var(--text-main);
+        }
+
+        .bg-white {
+            background-color: var(--surface) !important;
+            color: var(--text-main) !important;
+        }
+
+        .bg-light {
+            background-color: var(--surface-soft) !important;
+            color: var(--text-main) !important;
+        }
+
+        .border,
+        .border-top,
+        .border-end,
+        .border-bottom,
+        .border-start {
+            border-color: var(--border-color) !important;
+        }
+
+        .alert-success {
+            border-color: #9ad9b0;
+            border-color: color-mix(in srgb, #16a34a 30%, var(--border-color));
+        }
+
+        .alert-danger {
+            border-color: #ef9a9a;
+            border-color: color-mix(in srgb, #dc2626 30%, var(--border-color));
         }
 
         @keyframes pageEnter {
@@ -315,6 +504,10 @@
             .content-wrap {
                 padding: 1rem;
             }
+
+            .theme-toggle {
+                min-width: auto;
+            }
         }
 
         .sidebar::-webkit-scrollbar {
@@ -351,26 +544,91 @@
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
         <main class="main-content" id="mainContent">
+            @php
+                $notificationsEnabled = \Illuminate\Support\Facades\Schema::hasTable('notifications');
+                $unreadNotificationsCount = $notificationsEnabled ? auth()->user()->unreadNotifications()->count() : 0;
+                $latestNotifications = $notificationsEnabled
+                    ? auth()->user()->notifications()->latest()->take(8)->get()
+                    : collect();
+            @endphp
             <nav class="navbar top-nav">
                 <div class="container-fluid d-flex justify-content-between align-items-center">
                     <button class="btn btn-outline-secondary btn-sm" id="sidebarToggle" type="button" aria-label="Toggle sidebar">
                         <i class="fas fa-outdent"></i>
                     </button>
-                    <div class="dropdown ms-auto">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle me-1"></i>{{ auth()->user()->name }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{{ route('profile.show') }}"><i class="fas fa-user me-2"></i>Profile</a></li>
-                            <li><a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="fas fa-edit me-2"></i>Edit Profile</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form action="{{ route('logout') }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
-                                </form>
-                            </li>
-                        </ul>
+
+                    <div class="nav-toolbar ms-auto">
+                        <button class="btn btn-outline-secondary btn-sm theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode">
+                            <i class="fas fa-moon me-1"></i><span class="d-none d-sm-inline">Dark</span>
+                        </button>
+
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary btn-sm position-relative" id="notificationDropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-bell"></i>
+                                @if($unreadNotificationsCount > 0)
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        {{ $unreadNotificationsCount > 99 ? '99+' : $unreadNotificationsCount }}
+                                    </span>
+                                @endif
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end notification-menu" aria-labelledby="notificationDropdown">
+                                <div class="notification-header d-flex justify-content-between align-items-center">
+                                    <span class="fw-semibold">Notifications</span>
+                                    @if($unreadNotificationsCount > 0)
+                                        <form action="{{ route('notifications.readAll') }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="btn btn-link btn-sm p-0 text-decoration-none">Mark all as read</button>
+                                        </form>
+                                    @endif
+                                </div>
+
+                                <div class="notification-list">
+                                    @forelse($latestNotifications as $notification)
+                                        @php
+                                            $data = $notification->data;
+                                            $title = $data['title'] ?? 'Notification';
+                                            $message = $data['message'] ?? '';
+                                            $openLabel = $data['action_label'] ?? 'Open';
+                                        @endphp
+                                        <div class="notification-item {{ $notification->read_at === null ? 'unread' : '' }}">
+                                            <div class="notification-title">{{ $title }}</div>
+                                            <div class="notification-body">{{ $message }}</div>
+                                            <div class="notification-time">{{ $notification->created_at->diffForHumans() }}</div>
+                                            <div class="notification-actions">
+                                                <a href="{{ route('notifications.open', $notification->id) }}" class="btn btn-primary btn-sm">{{ $openLabel }}</a>
+                                                @if($notification->read_at === null)
+                                                    <form action="{{ route('notifications.read', $notification->id) }}" method="POST">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-outline-secondary btn-sm">Mark as Read</button>
+                                                    </form>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <div class="notification-item">
+                                            <p class="text-muted mb-0 small">No notifications yet.</p>
+                                        </div>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle me-1"></i>{{ auth()->user()->name }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ route('profile.show') }}"><i class="fas fa-user me-2"></i>Profile</a></li>
+                                <li><a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="fas fa-edit me-2"></i>Edit Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{{ route('logout') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </nav>
@@ -474,6 +732,50 @@
 
             window.addEventListener('resize', applyInitialSidebarState);
             applyInitialSidebarState();
+        })();
+
+        (function () {
+            const themeToggle = document.getElementById('themeToggle');
+            const themeKey = 'lms_theme';
+
+            if (!themeToggle) {
+                return;
+            }
+
+            function updateThemeButton(theme) {
+                const isDark = theme === 'dark';
+                themeToggle.innerHTML = isDark
+                    ? '<i class="fas fa-sun me-1"></i><span class="d-none d-sm-inline">Light</span>'
+                    : '<i class="fas fa-moon me-1"></i><span class="d-none d-sm-inline">Dark</span>';
+                themeToggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+            }
+
+            function applyTheme(theme, persist = true) {
+                const isDark = theme === 'dark';
+                document.body.classList.toggle('dark-mode', isDark);
+                updateThemeButton(theme);
+                if (persist) {
+                    try {
+                        localStorage.setItem(themeKey, theme);
+                    } catch (error) {
+                        // Ignore storage failures and keep runtime theme only.
+                    }
+                }
+            }
+
+            let savedTheme = null;
+            try {
+                savedTheme = localStorage.getItem(themeKey);
+            } catch (error) {
+                savedTheme = null;
+            }
+            const initialTheme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            applyTheme(initialTheme, false);
+
+            themeToggle.addEventListener('click', function () {
+                const nextTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
+                applyTheme(nextTheme);
+            });
         })();
 
         (function () {

@@ -9,9 +9,9 @@
 @push('styles')
 <style>
     .stat-tile {
-        border: 1px solid #e5e7eb;
+        border: 1px solid var(--border-color);
         border-radius: 14px;
-        background: #fff;
+        background: var(--surface);
         padding: 1rem;
         height: 100%;
         position: relative;
@@ -23,7 +23,11 @@
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(90deg, #eef2ff 0%, #dbeafe 100%);
+        background: linear-gradient(
+            90deg,
+            color-mix(in srgb, var(--accent) 10%, transparent) 0%,
+            color-mix(in srgb, var(--accent) 20%, transparent) 100%
+        );
         transform: translateX(-105%);
         transition: transform 0.35s ease;
         z-index: 0;
@@ -44,7 +48,7 @@
     }
 
     .stat-label {
-        color: #6b7280;
+        color: var(--text-muted);
         font-size: 0.82rem;
         letter-spacing: 0.03em;
         text-transform: uppercase;
@@ -61,8 +65,8 @@
         width: 40px;
         height: 40px;
         border-radius: 10px;
-        background: #eef2ff;
-        color: #1d4ed8;
+        background: color-mix(in srgb, var(--accent) 16%, transparent);
+        color: var(--accent);
         display: inline-flex;
         align-items: center;
         justify-content: center;

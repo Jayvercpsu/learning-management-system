@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\Topic;
+use App\Models\User;
 use App\Models\Video;
 use App\Models\Quiz;
+use App\Notifications\AccountActivityNotification;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class AdminController extends Controller
 {
@@ -41,6 +43,15 @@ class AdminController extends Controller
         }
 
         $user->update(['is_approved' => true]);
+        if (Schema::hasTable('notifications')) {
+            $user->notify(new AccountActivityNotification(
+                'Teacher Account Approved',
+                'Your teacher account has been approved. You can now open your dashboard.',
+                route('teacher.dashboard'),
+                'Open Dashboard'
+            ));
+        }
+
         return back()->with('success', 'Teacher approved successfully.');
     }
 

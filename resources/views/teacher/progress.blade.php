@@ -72,6 +72,27 @@
         border-bottom: 0;
         padding-bottom: 0;
     }
+
+    .section-user-item {
+        border: 1px solid #eef2f7;
+        border-radius: 10px;
+        padding: 0.7rem;
+        margin-bottom: 0.65rem;
+    }
+
+    .section-user-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .section-pill {
+        border: 1px solid #dbe3ef;
+        border-radius: 999px;
+        padding: 0.28rem 0.72rem;
+        font-size: 0.76rem;
+        font-weight: 600;
+        background: #f8fafc;
+        color: #334155;
+    }
 </style>
 @endpush
 
@@ -212,6 +233,45 @@
                     <small class="text-muted">
                         Based on {{ $progress['quizzes_taken'] }} submitted attempt{{ $progress['quizzes_taken'] === 1 ? '' : 's' }}.
                     </small>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0"><i class="fas fa-users me-2 text-primary"></i>Users by Section</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <span class="section-pill">Course: {{ $student->course ?: 'Not Set' }}</span>
+                        <span class="section-pill">Section: {{ $student->section ?: 'Unassigned' }}</span>
+                        <span class="section-pill">Users: {{ $sectionMates->count() }}</span>
+                    </div>
+
+                    @forelse($sectionMates->take(6) as $sectionUser)
+                        <div class="section-user-item">
+                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                <div>
+                                    <div class="fw-semibold">{{ $sectionUser->name }}</div>
+                                    <small class="text-muted">{{ $sectionUser->email }}</small>
+                                </div>
+                                <a href="{{ route('teacher.students.progress', $sectionUser->id) }}" class="btn btn-sm btn-outline-primary">
+                                    Open
+                                </a>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-muted mb-0">No users found in this section.</p>
+                    @endforelse
+
+                    <hr class="my-3">
+                    <small class="text-muted d-block mb-2">All Student Sections</small>
+                    <div class="d-flex flex-wrap gap-2">
+                        @forelse($sectionSummary as $sectionGroup)
+                            <span class="section-pill">{{ $sectionGroup->section_label }} ({{ $sectionGroup->total }})</span>
+                        @empty
+                            <span class="text-muted">No section data yet.</span>
+                        @endforelse
+                    </div>
                 </div>
             </div>
 

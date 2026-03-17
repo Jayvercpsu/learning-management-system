@@ -9,16 +9,16 @@
 @push('styles')
 <style>
     .student-overview {
-        border: 1px solid #e5e7eb;
+        border: 1px solid var(--border-color);
         border-radius: 14px;
-        background: #fff;
+        background: var(--surface);
         padding: 1rem;
     }
 
     .student-stat {
-        border: 1px solid #e5e7eb;
+        border: 1px solid var(--border-color);
         border-radius: 14px;
-        background: #fff;
+        background: var(--surface);
         padding: 0.95rem;
         height: 100%;
         position: relative;
@@ -30,7 +30,11 @@
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(90deg, #eff6ff 0%, #dbeafe 100%);
+        background: linear-gradient(
+            90deg,
+            color-mix(in srgb, var(--accent) 10%, transparent) 0%,
+            color-mix(in srgb, var(--accent) 20%, transparent) 100%
+        );
         transform: translateX(-105%);
         transition: transform 0.35s ease;
         z-index: 0;
@@ -51,7 +55,7 @@
     }
 
     .student-stat small {
-        color: #6b7280;
+        color: var(--text-muted);
         text-transform: uppercase;
         letter-spacing: 0.03em;
         font-size: 0.78rem;
@@ -63,7 +67,7 @@
     }
 
     .recent-resource {
-        border: 1px solid #edf0f3;
+        border: 1px solid var(--border-color);
         border-radius: 10px;
         padding: 0.8rem;
         margin-bottom: 0.7rem;
@@ -71,7 +75,7 @@
     }
 
     .recent-resource:hover {
-        background: #f8fafc;
+        background: var(--surface-soft);
         transform: translateX(2px);
     }
 </style>

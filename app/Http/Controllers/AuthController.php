@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Notifications\AccountActivityNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
+use Illuminate\Support\Facades\Schema;
 
 class AuthController extends Controller
 {
@@ -38,6 +40,7 @@ class AuthController extends Controller
         // If user is admin, allow login without role selection
         if ($user->role === 'admin') {
             Auth::login($user);
+            $this->ensureWelcomeNotification($user);
             return redirect()->route('admin.dashboard')->with('login_success', true);
         }
 
@@ -51,6 +54,7 @@ class AuthController extends Controller
         }
 
         Auth::login($user);
+        $this->ensureWelcomeNotification($user);
 
         $redirects = [
             'teacher' => 'teacher.dashboard',
@@ -96,6 +100,31 @@ class AuthController extends Controller
             'course' => $validated['role'] === 'student' ? $validated['course'] : null,
             'section' => $validated['role'] === 'student' ? $validated['section'] : null,
         ]);
+
+        if (Schema::hasTable('notifications')) {
+            $user->notify(new AccountActivityNotification(
+                'Account Created',
+                $validated['role'] === 'teacher'
+                    ? 'Your teacher account has been created and is waiting for admin approval.'
+                    : 'Your student account is ready. You can now log in and start learning.',
+                route('login'),
+                'Open Login'
+            ));
+
+            $adminLink = $validated['role'] === 'teacher'
+                ? route('admin.teachers')
+                : route('admin.students');
+
+            User::where('role', 'admin')->get()->each(function (User $admin) use ($user, $validated, $adminLink) {
+                $admin->notify(new AccountActivityNotification(
+                    $validated['role'] === 'teacher' ? 'New Teacher Registration' : 'New Student Registration',
+                    "{$user->name} created a {$validated['role']} account.",
+                    $adminLink,
+                    'Open'
+                ));
+            });
+        }
+
         $message = $validated['role'] === 'teacher'
             ? 'Registration successful! Please wait for admin approval.'
             : 'Registration successful! Please login to continue.';
@@ -119,5 +148,25 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('login');
+    }
+
+    private function ensureWelcomeNotification(User $user): void
+    {
+        if (!Schema::hasTable('notifications') || $user->notifications()->exists()) {
+            return;
+        }
+
+        $routeName = match ($user->role) {
+            'admin' => 'admin.dashboard',
+            'teacher' => 'teacher.dashboard',
+            default => 'student.dashboard',
+        };
+
+        $user->notify(new AccountActivityNotification(
+            'Welcome to LMS',
+            'Your account is ready. Use the notification center to track updates.',
+            route($routeName),
+            'Open Dashboard'
+        ));
     }
 }

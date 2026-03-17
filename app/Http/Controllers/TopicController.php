@@ -33,7 +33,7 @@ class TopicController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,csv,jpg,jpeg,png,gif|max:51200',
+            'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,csv,jpg,jpeg,png,gif|max:102400',
         ]);
 
         $file = $request->file('file');

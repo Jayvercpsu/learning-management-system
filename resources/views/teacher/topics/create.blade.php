@@ -36,7 +36,7 @@
                     <div class="mb-3">
                         <label class="form-label">Upload File</label>
                         <input type="file" name="file" class="form-control @error('file') is-invalid @enderror" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.csv,.jpg,.jpeg,.png,.gif" required>
-                        <small class="text-muted">Supported: PDF, Word, PowerPoint, Excel, CSV, Images (Max: 50MB)</small>
+                        <small class="text-muted">Supported: PDF, Word, PowerPoint, Excel, CSV, Images (Max: 100MB)</small>
                         @error('file')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

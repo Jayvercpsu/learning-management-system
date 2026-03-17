@@ -4,56 +4,11 @@
 
 @section('sidebar')
     @if(auth()->user()->isAdmin())
-        <nav class="nav flex-column">
-            <a href="{{ route('admin.dashboard') }}" class="nav-link">
-                <i class="fas fa-dashboard"></i> Dashboard
-            </a>
-            <a href="{{ route('admin.teachers') }}" class="nav-link">
-                <i class="fas fa-chalkboard-teacher"></i> Teachers
-            </a>
-            <a href="{{ route('admin.students') }}" class="nav-link">
-                <i class="fas fa-user-graduate"></i> Students
-            </a>
-        </nav>
+        @include ('admin.sidebar')
     @elseif(auth()->user()->isTeacher())
-        <nav class="nav flex-column">
-            <a href="{{ route('teacher.dashboard') }}" class="nav-link">
-                <i class="fas fa-dashboard"></i> Dashboard
-            </a>
-            <a href="{{ route('teacher.topics.index') }}" class="nav-link">
-                <i class="fas fa-book"></i> Topics
-            </a>
-            <a href="{{ route('teacher.videos.index') }}" class="nav-link">
-                <i class="fas fa-video"></i> Videos
-            </a>
-            <a href="{{ route('teacher.quizzes.index') }}" class="nav-link">
-                <i class="fas fa-question-circle"></i> Quizzes
-            </a>
-            <a href="{{ route('teacher.students') }}" class="nav-link">
-                <i class="fas fa-user-graduate"></i> Students
-            </a>
-        </nav>
+        @include ('teacher.sidebar')
     @else
-        <nav class="nav flex-column">
-            <a href="{{ route('student.dashboard') }}" class="nav-link">
-                <i class="fas fa-dashboard"></i> Dashboard
-            </a>
-            <a href="{{ route('student.topics') }}" class="nav-link">
-                <i class="fas fa-book"></i> Topics
-            </a>
-            <a href="{{ route('student.videos') }}" class="nav-link">
-                <i class="fas fa-video"></i> Videos
-            </a>
-            <a href="{{ route('student.geogebra') }}" class="nav-link">
-                <i class="fas fa-chart-line"></i> GeoGebra
-            </a>
-            <a href="{{ route('student.quizzes') }}" class="nav-link">
-                <i class="fas fa-question-circle"></i> Quizzes
-            </a>
-            <a href="{{ route('student.quizzes.results') }}" class="nav-link">
-                <i class="fas fa-chart-bar"></i> My Results
-            </a>
-        </nav>
+        @include ('student.sidebar')
     @endif
 @endsection
 

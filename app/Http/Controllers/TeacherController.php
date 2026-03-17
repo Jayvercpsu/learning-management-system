@@ -63,8 +63,34 @@ class TeacherController extends Controller
         ];
 
         $recentActivities = $this->getRecentActivities($allAttempts);
+        $sectionMates = User::where('role', 'student')
+            ->when($student->course, function ($query) use ($student) {
+                $query->where('course', $student->course);
+            })
+            ->when(
+                $student->section,
+                fn ($query) => $query->where('section', $student->section),
+                fn ($query) => $query->where(function ($innerQuery) {
+                    $innerQuery->whereNull('section')->orWhere('section', '');
+                })
+            )
+            ->orderBy('name')
+            ->get();
 
-        return view('teacher.progress', compact('student', 'quizResults', 'progress', 'recentActivities'));
+        $sectionSummary = User::where('role', 'student')
+            ->selectRaw("COALESCE(NULLIF(section, ''), 'Unassigned') as section_label, COUNT(*) as total")
+            ->groupBy('section_label')
+            ->orderBy('section_label')
+            ->get();
+
+        return view('teacher.progress', compact(
+            'student',
+            'quizResults',
+            'progress',
+            'recentActivities',
+            'sectionMates',
+            'sectionSummary'
+        ));
     }
 
     /**

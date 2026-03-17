@@ -35,8 +35,12 @@ class Handler extends ExceptionHandler
     public function render($request, Throwable $exception)
     {
         if ($exception instanceof PostTooLargeException) {
+            $isTopicUpload = $request->is('teacher/topics*');
+            $field = $isTopicUpload ? 'file' : 'video';
+            $maxSize = $isTopicUpload ? '100MB' : '500MB';
+
             return back()->withErrors([
-                'video' => 'The file is too large. Maximum upload size is 500MB. Please check your file size and try again.'
+                $field => "The file is too large. Maximum upload size is {$maxSize}. Please check your file size and try again."
             ])->withInput();
         }
 

@@ -47,20 +47,26 @@ class Handler extends ExceptionHandler
                 $this->phpUploadLimitBytes()
             );
             $maxSize = $this->formatBytesToMb($effectiveMaxBytes);
+            $phpUploadMax = (string) ini_get('upload_max_filesize');
+            $phpPostMax = (string) ini_get('post_max_size');
+            $helpText = " Current PHP limits are upload_max_filesize={$phpUploadMax} and post_max_size={$phpPostMax}.";
+            if (app()->environment('local')) {
+                $helpText .= ' If you are using `php artisan serve`, restart with `php -d upload_max_filesize=512M -d post_max_size=512M artisan serve`.';
+            }
 
             Log::warning('PostTooLargeException caught', [
                 'path' => $request->path(),
                 'field' => $field,
                 'content_length' => $request->server('CONTENT_LENGTH'),
                 'configured_max_kb' => $configuredMaxKb,
-                'php_upload_max_filesize' => ini_get('upload_max_filesize'),
-                'php_post_max_size' => ini_get('post_max_size'),
+                'php_upload_max_filesize' => $phpUploadMax,
+                'php_post_max_size' => $phpPostMax,
                 'effective_max_mb' => $maxSize,
                 'user_id' => optional($request->user())->id,
             ]);
 
             return back()->withErrors([
-                $field => "The file is too large. Maximum upload size is {$maxSize}. Please check your file size and try again."
+                $field => "The file is too large. Maximum upload size is {$maxSize}. Please check your file size and try again.{$helpText}"
             ])->withInput();
         }
 

@@ -634,8 +634,8 @@
             <div class="sidebar-nav">
                 @yield('sidebar')
             </div>
-            <div class="sidebar-footer d-lg-none">
-                <form action="{{ route('logout') }}" method="POST">
+            <div class="sidebar-footer">
+                <form action="{{ route('logout') }}" method="POST" class="js-logout-form">
                     @csrf
                     <button type="submit" class="btn btn-danger sidebar-logout-btn">
                         <i class="fas fa-sign-out-alt me-2"></i>Logout
@@ -725,7 +725,7 @@
                                 <li><a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="fas fa-edit me-2"></i>Edit Profile</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <form action="{{ route('logout') }}" method="POST">
+                                    <form action="{{ route('logout') }}" method="POST" class="js-logout-form">
                                         @csrf
                                         <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
                                     </form>
@@ -791,30 +791,50 @@
                 </div>
             </div>
 
+            <div class="modal fade" id="logoutConfirmModal" tabindex="-1" aria-labelledby="logoutConfirmModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="logoutConfirmModalLabel">
+                                <i class="fas fa-sign-out-alt me-2"></i>Confirm Logout
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to log out?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-danger" id="confirmLogoutBtn">Logout</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="content-wrap page-animate">
                 @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show">
+                    <div class="alert alert-success alert-dismissible fade show js-auto-dismiss-alert" data-auto-dismiss="3000">
                         {{ session('success') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 @endif
 
                 @if(session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show">
+                    <div class="alert alert-danger alert-dismissible fade show js-auto-dismiss-alert" data-auto-dismiss="3000">
                         {{ session('error') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 @endif
 
                 @if(session('info'))
-                    <div class="alert alert-info alert-dismissible fade show">
+                    <div class="alert alert-info alert-dismissible fade show js-auto-dismiss-alert" data-auto-dismiss="3000">
                         {{ session('info') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 @endif
 
                 @if(session('warning'))
-                    <div class="alert alert-warning alert-dismissible fade show">
+                    <div class="alert alert-warning alert-dismissible fade show js-auto-dismiss-alert" data-auto-dismiss="3000">
                         {{ session('warning') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
@@ -1025,6 +1045,72 @@
                             "<'row align-items-center gy-2 mt-2'<'col-sm-7'i><'col-sm-5 d-flex justify-content-sm-end'p>>"
                     });
                 });
+            });
+        })();
+
+        (function () {
+            if (typeof bootstrap === 'undefined') {
+                return;
+            }
+
+            const alerts = document.querySelectorAll('.js-auto-dismiss-alert');
+            alerts.forEach(function (alertElement) {
+                const delay = Number(alertElement.getAttribute('data-auto-dismiss') || 3000);
+                const safeDelay = Number.isFinite(delay) && delay > 0 ? delay : 3000;
+                const instance = bootstrap.Alert.getOrCreateInstance(alertElement);
+
+                window.setTimeout(function () {
+                    instance.close();
+                }, safeDelay);
+            });
+        })();
+
+        (function () {
+            const modalElement = document.getElementById('logoutConfirmModal');
+            const confirmButton = document.getElementById('confirmLogoutBtn');
+            if (!modalElement || !confirmButton || typeof bootstrap === 'undefined') {
+                return;
+            }
+
+            const modal = new bootstrap.Modal(modalElement);
+            let pendingLogoutForm = null;
+
+            document.addEventListener('submit', function (event) {
+                const form = event.target;
+                if (!(form instanceof HTMLFormElement) || !form.classList.contains('js-logout-form')) {
+                    return;
+                }
+
+                if (form.dataset.logoutConfirmed === '1') {
+                    form.dataset.logoutConfirmed = '0';
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                pendingLogoutForm = form;
+                modal.show();
+            }, true);
+
+            confirmButton.addEventListener('click', function () {
+                if (!(pendingLogoutForm instanceof HTMLFormElement)) {
+                    return;
+                }
+
+                const formToSubmit = pendingLogoutForm;
+                pendingLogoutForm = null;
+                formToSubmit.dataset.logoutConfirmed = '1';
+                modal.hide();
+
+                if (typeof formToSubmit.requestSubmit === 'function') {
+                    formToSubmit.requestSubmit();
+                } else {
+                    formToSubmit.submit();
+                }
+            });
+
+            modalElement.addEventListener('hidden.bs.modal', function () {
+                pendingLogoutForm = null;
             });
         })();
 

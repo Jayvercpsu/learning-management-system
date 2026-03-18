@@ -50,7 +50,7 @@
                             class="btn btn-sm btn-outline-primary flex-fill view-topic-btn"
                             data-topic-id="{{ $topic->id }}"
                             data-topic-title="{{ $topic->title }}"
-                            data-topic-url="{{ $topic->file_url }}"
+                            data-topic-url="{{ route('student.topics.open', $topic) }}"
                             data-topic-type="{{ $topic->file_type }}"
                             data-topic-viewed-url="{{ route('student.topics.viewed', $topic) }}"
                             data-topic-download-url="{{ route('student.topics.download', $topic) }}"

@@ -46,6 +46,8 @@ Route::middleware(['auth', 'teacher'])->prefix('teacher')->name('teacher.')->gro
     Route::get('/topics', [TopicController::class, 'index'])->name('topics.index');
     Route::get('/topics/create', [TopicController::class, 'create'])->name('topics.create');
     Route::post('/topics', [TopicController::class, 'store'])->name('topics.store');
+    Route::get('/topics/{topic}/open', [TopicController::class, 'open'])->name('topics.open');
+    Route::get('/topics/{topic}/download', [TopicController::class, 'download'])->name('topics.download');
     Route::delete('/topics/{topic}', [TopicController::class, 'destroy'])->name('topics.destroy');
     
     Route::get('/geogebra', [GeoGebraController::class, 'teacher'])->name('geogebra');
@@ -71,6 +73,7 @@ Route::middleware(['auth', 'student'])->prefix('student')->name('student.')->gro
     
     Route::get('/topics', [StudentController::class, 'topics'])->name('topics');
     Route::post('/topics/{topic}/viewed', [StudentController::class, 'markTopicViewed'])->name('topics.viewed');
+    Route::get('/topics/{topic}/open', [StudentController::class, 'openTopic'])->name('topics.open');
     Route::get('/topics/{topic}/download', [StudentController::class, 'downloadTopic'])->name('topics.download');
     
     Route::get('/videos', [StudentController::class, 'videos'])->name('videos');

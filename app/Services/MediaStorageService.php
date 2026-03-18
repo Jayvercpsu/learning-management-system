@@ -19,7 +19,22 @@ class MediaStorageService
     public function store(UploadedFile $file, string $folder, ?string $filename = null): string
     {
         if ($this->useCloudinary()) {
-            return $this->storeInCloudinary($file, $folder, $filename);
+            try {
+                return $this->storeInCloudinary($file, $folder, $filename);
+            } catch (Throwable $e) {
+                if ($this->shouldFallbackToLocalStorage($e)) {
+                    Log::warning('Cloudinary upload failed; falling back to local storage', [
+                        'folder' => $folder,
+                        'original_name' => $file->getClientOriginalName(),
+                        'size_bytes' => $file->getSize(),
+                        'message' => $e->getMessage(),
+                    ]);
+
+                    return $this->storeLocally($file, $folder, $filename);
+                }
+
+                throw $e;
+            }
         }
 
         return $this->storeLocally($file, $folder, $filename);
@@ -392,6 +407,22 @@ class MediaStorageService
         }
 
         return 'raw';
+    }
+
+    private function shouldFallbackToLocalStorage(Throwable $exception): bool
+    {
+        if (! (bool) config('media.cloudinary.fallback_to_local_on_failure', true)) {
+            return false;
+        }
+
+        $message = strtolower(trim($exception->getMessage()));
+        if ($message === '') {
+            return false;
+        }
+
+        return str_contains($message, 'file size too large')
+            || str_contains($message, 'maximum is 10485760')
+            || str_contains($message, 'request entity too large');
     }
 
     private function normalizeLocalStorageUrl(string $url): string

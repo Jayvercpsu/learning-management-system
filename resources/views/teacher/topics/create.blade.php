@@ -47,7 +47,8 @@
                     <div class="mb-3">
                         <label class="form-label">Upload File</label>
                         <input type="file" name="file" id="topicFile" class="form-control @error('file') is-invalid @enderror" accept="{{ $topicAccept }}" required>
-                        <small class="text-muted">Supported: PDF, Word, PowerPoint, Excel, CSV, Images</small>
+                        <small class="text-muted d-block">Supported: PDF, Word, PowerPoint, Excel, CSV, Images</small>
+                        <small class="text-muted d-block">Current max upload: {{ $topicEffectiveMaxMb }} MB (PHP upload_max_filesize={{ $phpUploadMax }}, post_max_size={{ $phpPostMax }})</small>
                         {{-- <div class="small text-muted mt-1">Server limits now: upload_max_filesize={{ $phpUploadMax }}, post_max_size={{ $phpPostMax }}</div> --}}
                         @error('file')
                             <div class="invalid-feedback">{{ $message }}</div>

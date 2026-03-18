@@ -55,7 +55,8 @@
                             class="btn btn-sm btn-outline-primary flex-fill view-topic-btn"
                             data-topic-id="{{ $topic->id }}"
                             data-topic-title="{{ $topic->title }}"
-                            data-topic-url="{{ $topic->file_url }}"
+                            data-topic-url="{{ route('teacher.topics.open', $topic) }}"
+                            data-topic-download-url="{{ route('teacher.topics.download', $topic) }}"
                             data-topic-type="{{ $topic->file_type }}"
                             data-topic-is-office="{{ $topic->is_office_file ? '1' : '0' }}"
                             data-topic-preview-url="{{ $topic->office_preview_url }}"
@@ -63,6 +64,9 @@
                         >
                             <i class="fas fa-eye"></i> {{ $topic->is_office_file ? 'View File' : 'View' }}
                         </button>
+                        <a href="{{ route('teacher.topics.download', $topic) }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-download"></i> Download
+                        </a>
                         <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $topic->id }}">
                             <i class="fas fa-trash"></i> Delete
                         </button>
@@ -106,6 +110,9 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times me-2"></i>Close
                 </button>
+                <a id="downloadFromModal" href="#" class="btn btn-primary">
+                    <i class="fas fa-download me-2"></i>Download
+                </a>
             </div>
         </div>
     </div>
@@ -144,6 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = new bootstrap.Modal(document.getElementById('viewTopicModal'));
     const fileViewer = document.getElementById('fileViewer');
     const modalTitle = document.getElementById('modalTopicTitle');
+    const downloadBtn = document.getElementById('downloadFromModal');
 
     function toSafeHttpUrl(rawUrl) {
         if (!rawUrl) {
@@ -232,12 +240,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const topicTitle = this.getAttribute('data-topic-title');
             const topicUrlRaw = this.getAttribute('data-topic-url');
             const topicUrl = normalizeLocalStorageOrigin(topicUrlRaw);
+            const topicDownloadUrl = this.getAttribute('data-topic-download-url');
             const topicType = (this.getAttribute('data-topic-type') || '').toLowerCase();
             const isOfficeFile = this.getAttribute('data-topic-is-office') === '1';
             const officePreviewUrl = this.getAttribute('data-topic-preview-url');
             const officePreviewFallbackUrl = this.getAttribute('data-topic-preview-fallback-url');
 
             modalTitle.textContent = topicTitle;
+            downloadBtn.href = topicDownloadUrl || topicUrl || '#';
 
 
             fileViewer.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';

@@ -68,6 +68,9 @@
 
 <div class="card">
     <div class="card-body p-0">
+        @if($students->isEmpty())
+            <div class="alert alert-info m-3 mb-0">No students found.</div>
+        @endif
         <div class="admin-table-wrap">
             <table class="table table-hover align-middle mb-0 admin-table js-data-table">
                 <thead>
@@ -80,7 +83,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($students as $student)
+                    @foreach($students as $student)
                         <tr>
                             <td class="fw-semibold">{{ $student->name }}</td>
                             <td class="email-cell">{{ $student->email }}</td>
@@ -114,11 +117,7 @@
                                 </div>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="text-center py-5 text-muted">No students found.</td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>

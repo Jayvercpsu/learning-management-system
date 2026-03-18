@@ -56,6 +56,25 @@ class StudentController extends Controller
         ]);
     }
 
+    public function openTopic(Topic $topic)
+    {
+        if ($this->mediaStorage->isRemotePath($topic->file_path)) {
+            $remoteUrl = $topic->file_url;
+            if (! $remoteUrl) {
+                abort(404);
+            }
+
+            return redirect()->away($remoteUrl);
+        }
+
+        $path = $this->mediaStorage->localAbsolutePath($topic->file_path);
+        if (! $path || ! file_exists($path)) {
+            abort(404);
+        }
+
+        return response()->file($path);
+    }
+
     public function downloadTopic(Topic $topic)
     {
         if ($this->mediaStorage->isRemotePath($topic->file_path)) {

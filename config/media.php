@@ -31,5 +31,7 @@ return [
         'folder' => env('CLOUDINARY_FOLDER', 'LMS-ASSETS'),
         // Cloudinary may reject large raw chunks above 10MB on some plans.
         'chunk_size_bytes' => (int) env('CLOUDINARY_CHUNK_SIZE_BYTES', 6291456), // 6MB
+        // When provider-side limits reject uploads, fall back to local disk storage.
+        'fallback_to_local_on_failure' => env('CLOUDINARY_FALLBACK_TO_LOCAL_ON_FAILURE', true),
     ],
 ];

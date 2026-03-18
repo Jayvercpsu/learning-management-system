@@ -19,6 +19,9 @@
 
 <div class="card">
     <div class="card-body">
+        @if($attempts->isEmpty())
+            <div class="alert alert-info mb-3">No submitted attempts yet.</div>
+        @endif
         <div class="table-responsive">
             <table class="table table-hover js-data-table">
                 <thead>
@@ -31,7 +34,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($attempts as $attempt)
+                    @foreach($attempts as $attempt)
                         <tr>
                             <td>{{ $attempt->user->name }}</td>
                             <td>
@@ -67,11 +70,7 @@
                                 @endif
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="text-center">No submitted attempts yet.</td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>

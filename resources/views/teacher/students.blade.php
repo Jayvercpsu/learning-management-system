@@ -58,6 +58,9 @@
 
     <div class="card">
         <div class="card-body p-0">
+            @if($students->isEmpty())
+                <div class="alert alert-info m-3 mb-0">No students registered yet.</div>
+            @endif
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0 js-data-table">
                     <thead>
@@ -73,7 +76,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($students as $student)
+                        @foreach($students as $student)
                             <tr>
                                 <td>
                                     <div class="student-name">
@@ -93,11 +96,7 @@
                                     </a>
                                 </td>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="text-center py-5 text-muted">No students registered yet.</td>
-                            </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
             </div>

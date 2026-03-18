@@ -9,6 +9,7 @@ use App\Services\MediaStorageService;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class TopicController extends Controller
 {
@@ -138,9 +139,7 @@ class TopicController extends Controller
 
     public function destroy(Topic $topic)
     {
-        if ($topic->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->ensureTopicOwnedByCurrentTeacher($topic);
 
         $topicTitle = (string) ($topic->title ?: 'Untitled Topic');
 
@@ -158,6 +157,48 @@ class TopicController extends Controller
         );
 
         return back()->with('success', 'Topic deleted successfully.');
+    }
+
+    public function open(Topic $topic)
+    {
+        $this->ensureTopicOwnedByCurrentTeacher($topic);
+
+        if ($this->mediaStorage->isRemotePath($topic->file_path)) {
+            $remoteUrl = $topic->file_url;
+            if (! $remoteUrl) {
+                abort(404);
+            }
+
+            return redirect()->away($remoteUrl);
+        }
+
+        $path = $this->mediaStorage->localAbsolutePath($topic->file_path);
+        if (! $path || ! file_exists($path)) {
+            abort(404);
+        }
+
+        return response()->file($path);
+    }
+
+    public function download(Topic $topic)
+    {
+        $this->ensureTopicOwnedByCurrentTeacher($topic);
+
+        if ($this->mediaStorage->isRemotePath($topic->file_path)) {
+            $remoteUrl = $topic->file_url;
+            if (! $remoteUrl) {
+                abort(404);
+            }
+
+            return redirect()->away($this->cloudinaryAttachmentUrl($remoteUrl));
+        }
+
+        $path = $this->mediaStorage->localAbsolutePath($topic->file_path);
+        if (! $path || ! file_exists($path)) {
+            abort(404);
+        }
+
+        return response()->download($path, $this->topicDownloadFilename($topic));
     }
 
     private function phpUploadLimitBytes(): int
@@ -216,5 +257,66 @@ class TopicController extends Controller
     private function isOfficeExtension(string $extension): bool
     {
         return in_array(strtolower($extension), Topic::officeExtensions(), true);
+    }
+
+    private function ensureTopicOwnedByCurrentTeacher(Topic $topic): void
+    {
+        if ((int) $topic->user_id !== (int) auth()->id()) {
+            abort(403);
+        }
+    }
+
+    private function topicDownloadFilename(Topic $topic): string
+    {
+        $base = Str::slug($topic->title ?: ('topic-' . $topic->id));
+        if ($base === '') {
+            $base = 'topic-' . $topic->id;
+        }
+
+        $extension = strtolower((string) $topic->file_type);
+        if ($extension !== '') {
+            return $base . '.' . $extension;
+        }
+
+        return $base;
+    }
+
+    private function cloudinaryAttachmentUrl(string $url): string
+    {
+        $parts = parse_url($url);
+        $host = strtolower((string) ($parts['host'] ?? ''));
+        if ($host === '') {
+            return $url;
+        }
+
+        $configuredCname = strtolower((string) config('media.cloudinary.cname', ''));
+        $isCloudinaryHost = str_contains($host, 'res.cloudinary.com')
+            || ($configuredCname !== '' && $host === $configuredCname);
+
+        if (! $isCloudinaryHost) {
+            return $url;
+        }
+
+        $path = trim((string) ($parts['path'] ?? ''), '/');
+        if ($path === '') {
+            return $url;
+        }
+
+        $segments = array_values(array_filter(explode('/', $path)));
+        $uploadIndex = array_search('upload', $segments, true);
+        if ($uploadIndex === false) {
+            return $url;
+        }
+
+        $nextSegment = (string) ($segments[$uploadIndex + 1] ?? '');
+        if (! str_contains($nextSegment, 'fl_attachment')) {
+            array_splice($segments, $uploadIndex + 1, 0, ['fl_attachment']);
+        }
+
+        $scheme = (string) ($parts['scheme'] ?? 'https');
+        $port = isset($parts['port']) ? ':' . $parts['port'] : '';
+        $query = isset($parts['query']) ? '?' . $parts['query'] : '';
+
+        return $scheme . '://' . $host . $port . '/' . implode('/', $segments) . $query;
     }
 }

@@ -1,4 +1,7 @@
 <nav class="nav flex-column">
+    <a href="{{ route('general.dashboard') }}" class="nav-link {{ request()->routeIs('general.dashboard') ? 'active' : '' }}">
+        <i class="fas fa-globe"></i> General Dashboard
+    </a>
     <a href="{{ route('teacher.dashboard') }}" class="nav-link {{ request()->routeIs('teacher.dashboard') ? 'active' : '' }}">
         <i class="fas fa-dashboard"></i> Dashboard
     </a>

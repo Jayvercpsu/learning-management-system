@@ -13,8 +13,12 @@ use App\Http\Controllers\GeoGebraController;
 use App\Http\Controllers\NotificationController;
 
 Route::get('/', function () {
-    return redirect()->route('login');
-});
+    if (auth()->check()) {
+        return view('general.dashboard-auth');
+    }
+
+    return view('general.dashboard');
+})->name('general.dashboard');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

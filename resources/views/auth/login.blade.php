@@ -73,6 +73,12 @@
                                 <p class="mb-0">Don't have an account? <a href="{{ route('register') }}">Register
                                         here</a></p>
                             </div>
+
+                            <div class="text-center mt-3">
+                                <a href="{{ route('general.dashboard') }}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-arrow-left me-1"></i>Back to Home
+                                </a>
+                            </div>
                         </form>
                     </div>
                 </div>
